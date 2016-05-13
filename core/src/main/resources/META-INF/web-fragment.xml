@@ -59,6 +59,10 @@
 			<param-name>org.atmosphere.cpr.CometSupport.maxInactiveActivity</param-name>
 			<param-value>86400000</param-value>
 		</init-param>
+		<init-param>
+			<param-name>org.atmosphere.cpr.AtmosphereFramework.analytics</param-name>
+			<param-value>false</param-value>
+		</init-param>
 		<load-on-startup>0</load-on-startup>
 		<async-supported>true</async-supported>
 	</servlet>
