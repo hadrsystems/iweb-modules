@@ -80,6 +80,8 @@ define(['ext', 'iweb/CoreModule'], function(Ext, Core){
 					this.olMap.getPixelFromCoordinate(this.lastClickCoord));
 
 				handled = this.render(this.activeFeature);
+			}else{
+				Core.EventManager.fireEvent("iweb.map.view.select", evt, this.container);
 			}
 
 			if (!handled) {
@@ -158,3 +160,4 @@ define(['ext', 'iweb/CoreModule'], function(Ext, Core){
 	});
 
 });
+
