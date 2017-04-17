@@ -150,9 +150,9 @@
 	    <version>2.12.5</version>
 	</dependency>
         <dependency>
-            <groupId>edu.mit.ll.nics.common</groupId>
+            <groupId>com.tabordasolutions.nics.common</groupId>
             <artifactId>rabbitmq-client</artifactId>
-            <version>${project.version}</version>
+            <version>2017.1</version>
         </dependency>
 
       

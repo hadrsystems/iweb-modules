@@ -94,7 +94,7 @@
     </dependency>
 
       <dependency>
-          <groupId>edu.mit.ll.nics.common</groupId>
+          <groupId>com.tabordasolutions.nics.common</groupId>
           <artifactId>rabbitmq-client</artifactId>
       </dependency>
  
