@@ -37,7 +37,7 @@
   <artifactId>iweb-modules</artifactId>
   <packaging>pom</packaging>
   <name>iWeb Modules Pom</name>
-  <version>6.2</version>
+  <version>6.2.1</version>
 
   <modules>
     <module>core</module>
