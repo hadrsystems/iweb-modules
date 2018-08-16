@@ -279,7 +279,7 @@ define(["iweb/CoreModule", "ol", "./MapStyle", "./FilteredCollection"],
 	MapController.prototype.reloadLayer = function(layer){
 		if(layer){
 			var source = layer.getSource();
-			
+
 			var deferReload = source.get("deferReload");
 			if (deferReload) {
 				var features = source.getFeatures();
@@ -288,13 +288,11 @@ define(["iweb/CoreModule", "ol", "./MapStyle", "./FilteredCollection"],
 			} else if(source && source.getParams){
 				var params = source.getParams();
 				if(!params){ params = {}; }
+				params.updated = (new Date()).getTime();
+				source.updateParams(params);
 				if(params.LAYERS && 
-						params.LAYERS.indexOf("show") > -1){
-					//Refresh ArcGis differently
+						params.LAYERS.indexOf("show") > -1){ //Refresh ArcGis differently
 					source.setTileLoadFunction(source.getTileLoadFunction());
-				}else{
-					params.updated = (new Date()).getTime();
-					source.updateParams(params);
 				}
 			}else if(source && source.clear){
 				source.clear();
