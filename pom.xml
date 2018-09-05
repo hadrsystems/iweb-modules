@@ -152,7 +152,7 @@
         <dependency>
             <groupId>com.tabordasolutions.nics.common</groupId>
             <artifactId>rabbitmq-client</artifactId>
-            <version>2018.1.3</version>
+            <version>2018.1.4</version>
         </dependency>
 
       
