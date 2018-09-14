@@ -27,7 +27,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-define(['ext', 'iweb/CoreModule', "FeatureDetailUtils"], function(Ext, Core, FeatureDetailUtils){
+define(['ext', 'iweb/CoreModule', "./FeatureDetailUtils"], function(Ext, Core, FeatureDetailUtils){
 
 	return Ext.define('map.ClickListener', {
 
@@ -74,14 +74,12 @@ define(['ext', 'iweb/CoreModule', "FeatureDetailUtils"], function(Ext, Core, Fea
 			var handled = false;
 			if (features.length) {
 				this.activeFeature = features[0];
-
 				this.container.show();
+				handled = this.render(this.activeFeature);
 				this.container.setLocalXY(
 					FeatureDetailUtils.calculateFeatureDetailsContainerXY(this.olMap.getPixelFromCoordinate(this.lastClickCoord),
-					container,
+					this.container,
 					this.olMap.getSize()));
-
-				handled = this.render(this.activeFeature);
 			}else{
 				Core.EventManager.fireEvent("iweb.map.view.select", evt, this.container);
 			}
