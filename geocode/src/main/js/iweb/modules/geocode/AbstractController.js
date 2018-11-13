@@ -62,7 +62,9 @@ define(['ext', 'ol', "iweb/modules/MapModule", "iweb/modules/drawmenu/Interactio
 			},
 			
 			untoggleLocate: function() {
-				this.lookupReference('locateButton').toggle(false);
+				var locateButton = this.lookupReference('locateButton');
+				if(locateButton)
+					this.lookupReference('locateButton').toggle(false);
 			},
 			
 			onDrawEnd: function (drawEvent) {
@@ -122,6 +124,11 @@ define(['ext', 'ol', "iweb/modules/MapModule", "iweb/modules/drawmenu/Interactio
 					MapModule.getMapController().removeLayer(activeLayer);
 					activeLayer = null;
 				}
+			},
+
+			resetInteractions: function() {
+				var actions = Core.Ext.Map.getDefaultInteractions();
+				Core.Ext.Map.setInteractions(actions);
 			}
 		});
 });
