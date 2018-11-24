@@ -71,7 +71,7 @@ define(["ol", "iweb/CoreModule", "../Interactions", "./AppsWindow"], function(ol
 			var coordParam = fmtdCoords.join(",");
 			
 			this.submitForm("POST", "http://ejscreen.epa.gov/mapper/demogreportpdf.aspx", {
-				report: "acs2018",
+				report: "acs2012",
 				coords: coordParam,
 				feattype: 'polygon',
 				radius: '0'
