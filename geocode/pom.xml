@@ -52,5 +52,36 @@
       <artifactId>junit</artifactId>
     </dependency>
   </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.samaxes.maven</groupId>
+                <artifactId>minify-maven-plugin</artifactId>
+                <version>1.7.6</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <webappSourceDir>${basedir}/src/main/</webappSourceDir>
+                    <webappTargetDir>${project.build.directory}/classes/META-INF/resources/</webappTargetDir>
+                    <jsSourceDir>js</jsSourceDir>
+                    <skipMerge>true</skipMerge>
+                    <nosuffix>true</nosuffix>
+                    <jsSourceIncludes>
+                        <jsSourceInclude>**/*.js</jsSourceInclude>
+                    </jsSourceIncludes>
+                    <jsEngine>CLOSURE</jsEngine>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-minify</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>minify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
   
 </project>

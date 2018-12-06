@@ -114,13 +114,68 @@
      <artifactId>javax.inject</artifactId>
     </dependency>
 
- 
-    
     <!-- test dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
   </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/js/lib/</directory>
+                <targetPath>META-INF/resources/js/lib/</targetPath>
+                <includes>
+                    <include>jquery-1.11.1.min.js</include>
+                    <include>extjs/build/ext-all.js</include>
+                    <include>**/sencha-charts.js</include>
+                    <include>**/theme-classic-all.css</include>
+                    <include>**/theme-classic-all_1.css</include>
+                    <include>**/theme-classic-all_2.css</include>
+                    <include>extjs/build/classic/theme-classic/resources/images/**/*.*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/js/iweb</directory>
+                <targetPath>META-INF/resources/js/</targetPath>
+                <excludes>
+                <exclude>**/*.js</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>com.samaxes.maven</groupId>
+                <artifactId>minify-maven-plugin</artifactId>
+                <version>1.7.6</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <webappSourceDir>${basedir}/src/main/</webappSourceDir>
+                    <webappTargetDir>${project.build.directory}/classes/META-INF/resources/</webappTargetDir>
+                    <jsSourceDir>js</jsSourceDir>
+                    <skipMerge>true</skipMerge>
+                    <nosuffix>true</nosuffix>
+                    <jsSourceIncludes>
+                        <jsSourceInclude>iweb/**/*.js</jsSourceInclude>
+                        <jsSourceInclude>lib/atmosphere.js</jsSourceInclude>
+                    </jsSourceIncludes>
+                    <jsEngine>CLOSURE</jsEngine>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-minify</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>minify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
   
 </project>

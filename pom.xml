@@ -169,18 +169,19 @@
 
   <build>
     <resources>
-      <resource>
-        <directory>src/main/js</directory>
-        <targetPath>META-INF/resources/js</targetPath>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
+        <resource>
+            <directory>src/main/resources</directory>
+        </resource>
     </resources>
 	<pluginManagement>
 		<plugins>
+            <plugin>
+                <groupId>com.samaxes.maven</groupId>
+                <artifactId>minify-maven-plugin</artifactId>
+                <version>1.7.6</version>
+            </plugin>
 			<plugin>
-                    <!-- This plugin formats source files by checking and adding a copyright 
+                    <!-- This plugin formats source files by checking and adding a copyright
                         header if it's missing. -->
                     <groupId>com.mycila.maven-license-plugin</groupId>
                     <artifactId>maven-license-plugin</artifactId>
