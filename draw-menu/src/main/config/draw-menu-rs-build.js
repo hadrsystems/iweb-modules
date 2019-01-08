@@ -33,10 +33,9 @@
         'ol': 'empty:',
         'iweb/CoreModule': 'empty:',
         'iweb/modules/MapModule': 'empty:',
-        'iweb/modules/DrawMenuModule': 'empty:',
-        'iweb/modules/drawmenu/Interactions': 'empty:',
     },
 
-    name: 'iweb/modules/GeocodeModule',
-    out: '../../../target/classes/META-INF/resources/js/iweb/modules/geocode.js',
+    baseUrl: '../js',
+    name: 'iweb/modules/DrawMenuModule',
+    out: '../../../target/classes/META-INF/resources/js/iweb/modules/drawmenu.js',
 })

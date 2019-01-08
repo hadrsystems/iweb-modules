@@ -162,7 +162,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <configFile>${basedir}/src/main/js/core-rs-build.js</configFile>
+                    <configFile>src/main/config/core-rs-build.js</configFile>
                 </configuration>
             </plugin>
         </plugins>

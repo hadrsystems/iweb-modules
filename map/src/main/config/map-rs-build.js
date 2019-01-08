@@ -34,6 +34,7 @@
         'iweb/CoreModule': 'empty:',
     },
 
+    baseUrl: '../js',
     name: 'iweb/modules/MapModule',
     out: '../../../target/classes/META-INF/resources/js/iweb/modules/map.js',
 })

@@ -30,11 +30,14 @@
 ({
     paths: {
         'ext': 'empty:',
-        'jquery': 'empty:',
-        'atmosphere': 'empty:',
-        'nics/modules/UserProfileModule': 'empty:',
+        'ol': 'empty:',
+        'iweb/CoreModule': 'empty:',
+        'iweb/modules/MapModule': 'empty:',
+        'iweb/modules/DrawMenuModule': 'empty:',
+        'iweb/modules/drawmenu/Interactions': 'empty:',
     },
 
-    name: 'iweb/CoreModule',
-    out: '../../../target/classes/META-INF/resources/js/iweb/core.js',
+    baseUrl: '../js',
+    name: 'iweb/modules/GeocodeModule',
+    out: '../../../target/classes/META-INF/resources/js/iweb/modules/geocode.js',
 })

@@ -30,11 +30,12 @@
 ({
     paths: {
         'ext': 'empty:',
-        'ol': 'empty:',
-        'iweb/CoreModule': 'empty:',
-        'iweb/modules/MapModule': 'empty:',
+        'jquery': 'empty:',
+        'atmosphere': 'empty:',
+        'nics/modules/UserProfileModule': 'empty:',
     },
 
-    name: 'iweb/modules/DrawMenuModule',
-    out: '../../../target/classes/META-INF/resources/js/iweb/modules/drawmenu.js',
+    baseUrl: '../js',
+    name: 'iweb/CoreModule',
+    out: '../../../target/classes/META-INF/resources/js/iweb/core.js',
 })
