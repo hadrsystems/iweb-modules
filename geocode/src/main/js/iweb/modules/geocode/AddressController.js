@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 define(['ext', 'ol', "iweb/modules/MapModule", "./AbstractController",
-		"async!https://maps.googleapis.com/maps/api/js"], 
+		"async!https://maps.googleapis.com/maps/api/js?key=${google.api.key}"],
 	function(Ext, ol, MapModule, AbstractController, Interactions){
 	
 		return Ext.define('modules.geocode.AddressController', {
