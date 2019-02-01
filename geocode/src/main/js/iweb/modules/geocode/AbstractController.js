@@ -127,8 +127,8 @@ define(['ext', 'ol', "iweb/modules/MapModule", "iweb/modules/drawmenu/Interactio
 			},
 
 			resetInteractions: function() {
-				var actions = Core.Ext.Map.getDefaultInteractions();
-				Core.Ext.Map.setInteractions(actions);
+				var actions = MapModule.getMapController().getDefaultInteractions();
+				MapModule.getMapController().setInteractions(actions);
 			}
 		});
 });
