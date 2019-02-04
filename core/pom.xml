@@ -114,13 +114,58 @@
      <artifactId>javax.inject</artifactId>
     </dependency>
 
- 
-    
     <!-- test dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
   </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/js/lib/</directory>
+                <targetPath>META-INF/resources/js/lib/</targetPath>
+                <includes>
+                    <include>jquery-1.11.1.min.js</include>
+                    <include>atmosphere.js</include>
+                    <include>extjs/build/ext-all.js</include>
+                    <include>extjs/build/ext-all.js.gz</include>
+                    <include>**/sencha-charts.js</include>
+                    <include>**/theme-classic-all.css</include>
+                    <include>**/theme-classic-all_1.css</include>
+                    <include>**/theme-classic-all_2.css</include>
+                    <include>extjs/build/classic/theme-classic/resources/images/**/*.*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/js/iweb</directory>
+                <targetPath>META-INF/resources/js/</targetPath>
+                <excludes>
+                <exclude>**/*.js</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>com.github.bringking</groupId>
+                <artifactId>requirejs-maven-plugin</artifactId>
+                <version>2.0.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>optimize</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configFile>src/main/config/core-rs-build.js</configFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
   
 </project>

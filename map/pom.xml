@@ -52,5 +52,34 @@
       <artifactId>junit</artifactId>
     </dependency>
   </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/js/lib</directory>
+                <targetPath>META-INF/resources/js/lib</targetPath>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>com.github.bringking</groupId>
+                <artifactId>requirejs-maven-plugin</artifactId>
+                <version>2.0.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>optimize</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configFile>src/main/config/map-rs-build.js</configFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
   
 </project>
