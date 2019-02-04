@@ -52,8 +52,17 @@
       <artifactId>junit</artifactId>
     </dependency>
   </dependencies>
-
     <build>
+        <resources>
+            <resource>
+                <directory>target/js</directory>
+                <targetPath>META-INF/resources/js/iweb/modules</targetPath>
+                <includes>
+                    <include>**/geocode.js</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>com.github.bringking</groupId>
@@ -61,6 +70,7 @@
                 <version>2.0.4</version>
                 <executions>
                     <execution>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>optimize</goal>
                         </goals>
@@ -72,5 +82,4 @@
             </plugin>
         </plugins>
     </build>
-  
 </project>

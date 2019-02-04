@@ -16,6 +16,7 @@ release.properties
 *.swp
 *.swo
 
+geocode.js
 <<<<<<< HEAD
 # intellij 
 *.iml

@@ -39,5 +39,6 @@
 
     baseUrl: '../js',
     name: 'iweb/modules/GeocodeModule',
-    out: '../../../target/classes/META-INF/resources/js/iweb/modules/geocode.js',
+    out: '../../../target/js/geocode.js',
+    preserveLicenseComments: false
 })

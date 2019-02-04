@@ -70,7 +70,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
  	        transport : 'websocket' ,
  	        trackMessageLength : true,
  	        reconnectInterval : 5000,
- 	        fallbackTransport: 'long-polling',
+ 	        fallbackTransport: 'websocket',
  	        maxReconnectOnClose : 17280, //24 hours -- whatever the token expiration is...
  	        closeAsync: true //synchronous close call locks IE on connection drop
  	    };
