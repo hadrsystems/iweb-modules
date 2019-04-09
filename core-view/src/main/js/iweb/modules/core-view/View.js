@@ -201,7 +201,7 @@ define(["ext", "jquery", "iweb/modules/core-view/ConnectionIndicator"],
         Viewer.prototype.addToolbarButton = function(button) {
             this.toolbar.add(button);
         };
-        
+
         Viewer.prototype.getBottomPanel = function(panel) {
         	return this.bottomPanel;
         };
@@ -212,6 +212,16 @@ define(["ext", "jquery", "iweb/modules/core-view/ConnectionIndicator"],
 
         Viewer.prototype.removeFromBottomPanel = function(panel) {
             this.bottomPanel.remove(panel);
+        };
+
+        Viewer.prototype.showSidePanel = function() {
+            if(this.sidePanel.collapsed) {
+                this.sidePanel.toggleCollapse();
+            }
+        };
+
+        Viewer.prototype.setActiveTabOnSidePanel = function(tab) {
+            this.sidePanel.setActiveTab(tab);
         };
 
         return Viewer;
