@@ -41,17 +41,20 @@ define(['ext', 'iweb/CoreModule'],
 		},
 		
 		onDisconnect: function(){
-			this.updateImageTag("display:inline");
+			this.updateImageTag("display:inline;", "padding: 25px; background-color: #FF5733; border-style: solid; border-color: #92a8d1; text-align: center; position: fixed; top: 50% !important; left: 50% !important; margin-top: -50px !important; margin-left: -100px !important;");
 		},
-		
+
 		onReConnect: function(){
-			this.updateImageTag("display:none");
+			this.updateImageTag("display:none;", "background: transparent;");
 		},
 		
-		updateImageTag: function(style){
-			var content = this.getView().getContentTarget();
+		updateImageTag: function(style, boxStyle){
+			var content = this.getView().getContentTarget().child("div");
 			var image = content.child("img");
+			var message = content.child("div");
+			content.dom.setAttribute("style", boxStyle);
 			image.dom.setAttribute("style", style);
+			message.dom.setAttribute("style", style);
 		}
 	});
 });

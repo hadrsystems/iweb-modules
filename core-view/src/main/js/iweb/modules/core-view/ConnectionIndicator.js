@@ -29,22 +29,22 @@
  */
 define(['ext', 'iweb/CoreModule',"iweb/modules/core-view/ConnectionController"],
 		function(Ext, Core){
-	
+
 	return Ext.define("Core.DisconnectedIndicator", {
         extend: "Ext.panel.Panel",
         controller: 'connectioncontroller',
         id: "cDisconnect",
         floating: true,
         draggable: false,
-        height: 60,
-        width: 60,
-        x: 25,
-        y: 200,
+        height: 500,
+        width: 500,
+        x: 400,
+        y: 400,
         bodyStyle: 'background:transparent;',
         border: false,
         frame: false,
         shadow: false,
         hidden: true,
-        html: '<img style="display:none" src="img/core-view/Warning.png"/>'
+        html: '<div><img style="display:none;" src="img/core-view/Warning.png"/><br /><div style="display:none;">No internet connection.<br><br>Please do not refresh this page or try to logout.</div></div>'
     });
 });
