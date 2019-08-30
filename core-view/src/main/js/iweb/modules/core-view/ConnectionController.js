@@ -41,7 +41,7 @@ define(['ext', 'iweb/CoreModule'],
 		},
 		
 		onDisconnect: function(){
-			this.updateImageTag("display:inline;", "padding: 25px; background-color: #FF5733; border-style: solid; border-color: #92a8d1; text-align: center; position: fixed; top: 50% !important; left: 50% !important; margin-top: -50px !important; margin-left: -100px !important;");
+			this.updateImageTag("display:inline; vertical-align: middle !important;", "padding: 25px !important; background-color: #FF8585; border-style: solid; border-color: #92a8d1; display: flex; align-items: center !important; text-align: center !important; position: fixed; top: 0 !important; left: 0 !important; width: 100%; height: 8%;");
 		},
 
 		onReConnect: function(){

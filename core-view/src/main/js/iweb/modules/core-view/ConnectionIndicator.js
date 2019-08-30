@@ -36,7 +36,7 @@ define(['ext', 'iweb/CoreModule',"iweb/modules/core-view/ConnectionController"],
         id: "cDisconnect",
         floating: true,
         draggable: false,
-        height: 500,
+        height: 200,
         width: 500,
         x: 400,
         y: 400,
@@ -45,6 +45,6 @@ define(['ext', 'iweb/CoreModule',"iweb/modules/core-view/ConnectionController"],
         frame: false,
         shadow: false,
         hidden: true,
-        html: '<div><img style="display:none;" src="img/core-view/Warning.png"/><br /><div style="display:none;">No internet connection.<br><br>Please do not refresh this page or try to logout.</div></div>'
+        html: '<div><img style="display:none;" src="img/core-view/Warning.png"/>  <div style="display:none;">No internet connection. Please do not refresh this page or try to logout.</div></div>'
     });
 });
