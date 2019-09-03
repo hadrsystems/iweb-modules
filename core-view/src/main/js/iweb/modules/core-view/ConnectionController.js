@@ -39,23 +39,25 @@ define(['ext', 'iweb/CoreModule'],
 			Core.EventManager.addListener("iweb.connection.disconnected", this.onDisconnect.bind(this));
 			Core.EventManager.addListener("iweb.connection.reconnected", this.onReConnect.bind(this));
 		},
-		
+
 		onDisconnect: function(){
-			this.updateImageTag("display:inline; vertical-align: middle !important;", "padding: 25px !important; background-color: #FF8585; border-style: solid; border-color: #92a8d1; display: flex; align-items: center !important; text-align: center !important; position: fixed; top: 0 !important; left: 0 !important; width: 100%; height: 8%;");
+            this.updateImageTag(
+                "display:inline;padding: 4px; background-color: #FF0000; color: #FFFFFF; font-weight: bold; font-size: 150%; width:31%; text-align: center; position: fixed; top: 50% !important; left: 50% !important; margin-top: -155px !important; margin-left: -250px !important;",
+                "display:inline;padding: 25px; background-color: #FF5733; font-size: 150%; width:31%; text-align: center; position: fixed; top: 50% !important; left: 50% !important; margin-top: -125px !important; margin-left: -250px !important;"
+            );
 		},
 
 		onReConnect: function(){
-			this.updateImageTag("display:none;", "background: transparent;");
+			this.updateImageTag("display:none;", "display:none;");
 		},
-		
-		updateImageTag: function(style, boxStyle){
-			var content = this.getView().getContentTarget().child("div");
-			var image = content.child("img");
-			var message = content.child("div");
-			content.dom.setAttribute("style", boxStyle);
-			image.dom.setAttribute("style", style);
-			message.dom.setAttribute("style", style);
+
+		updateImageTag: function(headerStyle, messageStyle){
+            var content = this.getView().getContentTarget().child("div");
+            var header = content.child("#cDisconnectHeader");
+            var message = content.child("#cDisconnectContent");
+
+            header.dom.setAttribute("style", headerStyle);
+            message.dom.setAttribute("style", messageStyle);
 		}
 	});
 });
-	
