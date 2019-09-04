@@ -60,3 +60,37 @@
         opacity: 1;
     }
 }
+
+#cDisconnectHeader {
+    background-color: #FF0000;
+    color: #FFFFFF;
+    font-weight: bold;
+    font-size: 150%;
+    left: 50% !important;
+    margin-top: -155px !important;
+    margin-left: -250px !important;
+    padding: 4px;
+    position: fixed;
+    text-align: center;
+    top: 50% !important;
+    width:31%;
+}
+
+#cDisconnectContent {
+    background-color: #FF5733;
+    font-size: 150%;
+    left: 50% !important;
+    margin-top: -125px !important;
+    margin-left: -250px !important;
+    padding: 25px;
+    position: fixed;
+    text-align: center;
+    top: 50% !important;
+    width:31%;
+}
+
+#cDisconnectContent hr {
+    height: 2px;
+    background-color:#000000;
+    border: none;
+}

@@ -41,23 +41,20 @@ define(['ext', 'iweb/CoreModule'],
 		},
 
 		onDisconnect: function(){
-            this.updateImageTag(
-                "display:inline;padding: 4px; background-color: #FF0000; color: #FFFFFF; font-weight: bold; font-size: 150%; width:31%; text-align: center; position: fixed; top: 50% !important; left: 50% !important; margin-top: -155px !important; margin-left: -250px !important;",
-                "display:inline;padding: 25px; background-color: #FF5733; font-size: 150%; width:31%; text-align: center; position: fixed; top: 50% !important; left: 50% !important; margin-top: -125px !important; margin-left: -250px !important;"
-            );
+            this.updateImageTag("display:inline;");
 		},
 
 		onReConnect: function(){
-			this.updateImageTag("display:none;", "display:none;");
+			this.updateImageTag("display:none;");
 		},
 
-		updateImageTag: function(headerStyle, messageStyle){
+		updateImageTag: function(style){
             var content = this.getView().getContentTarget().child("div");
             var header = content.child("#cDisconnectHeader");
             var message = content.child("#cDisconnectContent");
-
-            header.dom.setAttribute("style", headerStyle);
-            message.dom.setAttribute("style", messageStyle);
+            content.dom.setAttribute("style", style);
+            header.dom.setAttribute("style", style);
+            message.dom.setAttribute("style", style);
 		}
 	});
 });

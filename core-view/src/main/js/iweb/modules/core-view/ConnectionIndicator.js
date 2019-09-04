@@ -45,6 +45,6 @@ define(['ext', 'iweb/CoreModule',"iweb/modules/core-view/ConnectionController"],
         frame: false,
         shadow: false,
         hidden: true,
-        html: '<div><div id="cDisconnectHeader" style="display:none;">Internet Connection Lost</div><div id="cDisconnectContent" style="display:none;">Please discontinue working in Scout until connection is restored and this message closes.<br/>If your internet connection is restored, and this message remains, Scout will need to be manually reset.<br />To do this, please close and reopen your Scout session.<br /><hr style="height: 2px;background-color:#000000;border: none;"><b>Important: Unsaved data may be lost from a manual Scout reset.</b></div></div>'
+        html: '<div><div id="cDisconnectHeader" style="display:none;">Internet Connection Lost</div><div id="cDisconnectContent" style="display:none;">Please discontinue working in Scout until connection is restored and this message closes.<br/>If your internet connection is restored, and this message remains, Scout will need to be manually reset.<br />To do this, please close and reopen your Scout session.<br /><hr><b>Important: Unsaved data may be lost from a manual Scout reset.</b></div></div>'
     });
 });
