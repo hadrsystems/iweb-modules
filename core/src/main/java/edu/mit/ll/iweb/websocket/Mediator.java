@@ -119,7 +119,7 @@ public class Mediator implements AtmosphereHandler {
 
 	private DefaultCamelContext context;
 	private ProducerTemplate producerTemp;
-    private RabbitPubSubProducer rabbitProducer;
+	private RabbitPubSubProducer rabbitProducer;
 
 	private final ObjectWriter objectWriter;
 	private final Client jerseyClient;
@@ -145,14 +145,19 @@ public class Mediator implements AtmosphereHandler {
 		if (req.getMethod().equalsIgnoreCase(GET)) {
 
 			// caching is necessary for polling transports, disable for others
+
 			BroadcasterCache cache = r.getBroadcaster().getBroadcasterConfig()
 					.getBroadcasterCache();
+			/*
 			if (r.transport().equals(TRANSPORT.POLLING)
 					|| r.transport().equals(TRANSPORT.LONG_POLLING)) {
 				cache.cacheCandidate(r.getBroadcaster().getID(), r.uuid());
 			} else {
 				cache.excludeFromCache(r.getBroadcaster().getID(), r);
 			}
+			*/
+
+			cache.cacheCandidate(r.getBroadcaster().getID(), r.uuid());
 
 			logger.info("Suspending session id " + req.getSession().getId());
 
@@ -189,7 +194,7 @@ public class Mediator implements AtmosphereHandler {
 
 		logger.info("Broadcasting to : "
 				+ (String) SessionHolder.getData(resource.getRequest()
-						.getSession().getId(), "username") + " is suspended? "
+				.getSession().getId(), "username") + " is suspended? "
 				+ resource.isSuspended());
 
 		if (resource.isSuspended()) {
@@ -209,14 +214,14 @@ public class Mediator implements AtmosphereHandler {
 			}
 
 			switch (resource.transport()) {
-			case JSONP:
-			case LONG_POLLING:
-				event.getResource().resume();// need to send message back if
-												// this is failover
-				break;
-			default:
-				res.getWriter().flush();
-				break;
+				case JSONP:
+				case LONG_POLLING:
+					event.getResource().resume();// need to send message back if
+					// this is failover
+					break;
+				default:
+					res.getWriter().flush();
+					break;
 			}
 		} else if (!event.isResuming()) {
 			logger.info("Not Resuming HTTP Session ID <"
@@ -235,7 +240,7 @@ public class Mediator implements AtmosphereHandler {
 	 * @throws IOException
 	 */
 	private ResponseMessage onMessage(RequestMessage message,
-			AtmosphereResource resource) throws IOException {
+									  AtmosphereResource resource) throws IOException {
 		ResponseMessage response = new ResponseMessage();
 		try {
 			String type = message.getType();
@@ -290,23 +295,23 @@ public class Mediator implements AtmosphereHandler {
 		return this.producerTemp;
 	}
 
-    private RabbitPubSubProducer getRabbitProducer() throws IOException
-    {
-        if (rabbitProducer == null)
-        {
-            rabbitProducer = RabbitFactory.makeRabbitPubSubProducer(
-                    Config.getInstance().getConfiguration().getString(Config.RABBIT_HOSTNAME_KEY),
-                    Config.getInstance().getConfiguration().getString(Config.RABBIT_EXCHANGENAME_KEY),
-                    Config.getInstance().getConfiguration().getString(Config.RABBIT_USERNAME_KEY),
-                    Config.getInstance().getConfiguration().getString(Config.RABBIT_USERPWD_KEY));
-        }
+	private RabbitPubSubProducer getRabbitProducer() throws IOException
+	{
+		if (rabbitProducer == null)
+		{
+			rabbitProducer = RabbitFactory.makeRabbitPubSubProducer(
+					Config.getInstance().getConfiguration().getString(Config.RABBIT_HOSTNAME_KEY),
+					Config.getInstance().getConfiguration().getString(Config.RABBIT_EXCHANGENAME_KEY),
+					Config.getInstance().getConfiguration().getString(Config.RABBIT_USERNAME_KEY),
+					Config.getInstance().getConfiguration().getString(Config.RABBIT_USERPWD_KEY));
+		}
 
-        return rabbitProducer;
-    }
+		return rabbitProducer;
+	}
 
 	/**
 	 * Return array of subscribed topics for this request
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -323,7 +328,7 @@ public class Mediator implements AtmosphereHandler {
 	/**
 	 * Add the topic the Atmosphere request Susbcribe to the topic on the rabbit
 	 * listener
-	 * 
+	 *
 	 * @param topic
 	 * @param resource
 	 * @return
@@ -360,13 +365,13 @@ public class Mediator implements AtmosphereHandler {
 	/**
 	 * Remove the topic from the Atmosphere request Unsubscribe the topic from
 	 * the rabbit listener
-	 * 
+	 *
 	 * @param topic
 	 * @param resource
 	 * @return
 	 */
 	private ResponseMessage unsubscribe(String topic,
-			AtmosphereResource resource) {
+										AtmosphereResource resource) {
 		logger.info("Unsubscribing from topic " + topic);
 		ResponseMessage message = new ResponseMessage();
 		try {
@@ -384,7 +389,7 @@ public class Mediator implements AtmosphereHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param topic
 	 * @param message
 	 * @return
@@ -392,16 +397,16 @@ public class Mediator implements AtmosphereHandler {
 	private ResponseMessage publish(String topic, String message) {
 		ResponseMessage responseMessage = new ResponseMessage();
 		try {
-            logger.info("in Publish method");
+			logger.info("in Publish method");
 //            logger.info("Rabbit endpoint: " + Config.getInstance().getRabbitMQEndpoint().toString());
 
-            getRabbitProducer().produce(topic, message);
+			getRabbitProducer().produce(topic, message);
 
 //            Config.getInstance().getRabbitMQEndpoint().getEndpointUri();
 //            this.getPublisher().sendBody(
 //                    "rabbitmq://localhost:5672/iweb.amq.topic?exchangeType=topic&password=guest&routingKey=iweb.nics.email.alert&username=guest", message);
-            logger.info("Publishing on topic: " + topic);
-            logger.info("Publishing message: " + message);
+			logger.info("Publishing on topic: " + topic);
+			logger.info("Publishing message: " + message);
 			responseMessage.setSuccessMessage(SUCCESS);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -412,13 +417,13 @@ public class Mediator implements AtmosphereHandler {
 
 	/**
 	 * DELETE
-	 * 
+	 *
 	 * @param request
 	 * @param sessionId
 	 * @return
 	 */
 	private ResponseMessage delete(RequestMessage request, String token,
-			String username) {
+								   String username) {
 		String responseType = request.getResponseType();
 
 		ResponseMessage responseMessage = new ResponseMessage();
@@ -440,7 +445,7 @@ public class Mediator implements AtmosphereHandler {
 
 	/**
 	 * POST
-	 * 
+	 *
 	 * @param url
 	 * @param eventName
 	 * @param payload
@@ -448,7 +453,7 @@ public class Mediator implements AtmosphereHandler {
 	 * @return
 	 */
 	private ResponseMessage post(RequestMessage request, String token,
-			String username) {
+								 String username) {
 		String responseType = request.getResponseType();
 
 		ResponseMessage responseMessage = new ResponseMessage();
@@ -472,7 +477,7 @@ public class Mediator implements AtmosphereHandler {
 
 	/**
 	 * POST
-	 * 
+	 *
 	 * @param url
 	 * @param eventName
 	 * @param payload
@@ -480,7 +485,7 @@ public class Mediator implements AtmosphereHandler {
 	 * @return
 	 */
 	private ResponseMessage put(RequestMessage request, String token,
-			String username) {
+								String username) {
 		String responseType = request.getResponseType();
 
 		ResponseMessage responseMessage = new ResponseMessage();
@@ -504,14 +509,14 @@ public class Mediator implements AtmosphereHandler {
 
 	/**
 	 * GET
-	 * 
+	 *
 	 * @param url
 	 * @param eventName
 	 * @param responseType
 	 * @return
 	 */
 	private ResponseMessage request(RequestMessage request, String token,
-			String username) {
+									String username) {
 		String responseType = request.getResponseType();
 		ResponseMessage responseMessage = new ResponseMessage();
 		responseMessage.setEventName(request.getEventName());
@@ -532,7 +537,7 @@ public class Mediator implements AtmosphereHandler {
 
 	/**
 	 * Load the config file
-	 * 
+	 *
 	 * @param sessionId
 	 * @return
 	 * @throws IOException
@@ -601,20 +606,20 @@ public class Mediator implements AtmosphereHandler {
 
 	/**
 	 * Handle POST/GET Responses
-	 * 
+	 *
 	 * @param response
 	 * @param responseMessage
 	 * @return
 	 */
 	private ResponseMessage handleResponse(Response response,
-			ResponseMessage responseMessage) {
+										   ResponseMessage responseMessage) {
 		String message = response.readEntity(String.class);
 		responseMessage.setData(message);
 
 		StatusType status = response.getStatusInfo();
 		if (Response.Status.Family.SERVER_ERROR.equals(status.getFamily())
 				|| Response.Status.Family.CLIENT_ERROR.equals(status
-						.getFamily())) {
+				.getFamily())) {
 			responseMessage.setErrorMessage(status.getReasonPhrase());
 		} else {
 			responseMessage.setSuccessMessage(status.getReasonPhrase());
@@ -624,7 +629,7 @@ public class Mediator implements AtmosphereHandler {
 
 	/**
 	 * Set Cookies on the Get/Post
-	 * 
+	 *
 	 * @param builder
 	 * @param cookieKeys
 	 *            - sent from the client and are defined in the core.properties
@@ -632,7 +637,7 @@ public class Mediator implements AtmosphereHandler {
 	 * @param sessionId
 	 */
 	private void setCookies(Builder builder, Collection<String> cookieKeys,
-			String token, String username) {
+							String token, String username) {
 		if (cookieKeys != null) {
 			Collection<Cookie> cookies = SessionHolder.getCookieStore(
 					cookieKeys, token);

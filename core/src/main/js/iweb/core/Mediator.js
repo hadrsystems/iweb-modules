@@ -27,43 +27,43 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"], 
+define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 		function(Ext, jQuery, atmosphere, EventManager, CookieManager) {
     "use strict";
 
     var _mediator = null;
 
     var ws = null;
-    
+
     var sessionId = null;
-    
+
     var currentUserSessionId = null;
 
     var SUCCESS = "Success";
-    
+
     var NOT_LOGGED_IN = "not_logged_in";
 
     var message = "/mediator";
-    
+
     var messageQueue = [];
-    
+
     var topics = []; //maintain a list of topics for reinitialization
-    
+
     var initiated = false;
-    
+
     var timeOfDisconnect = null;
-    
+
     var cookies = []; //List of cookies to be added to a request/post. Defined in the core.properties file
 
     function Mediator() {}
 
     function init(initTopics) {
-    	
+
     	_mediator = new Mediator();
 
         var socket = atmosphere;
-        
-        var request = { 
+
+        var request = {
         	url: 'mediator',
  	        contentType : "application/json",
  	        logLevel : 'debug',
@@ -74,7 +74,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
  	        maxReconnectOnClose : 17280, //24 hours -- whatever the token expiration is...
  	        closeAsync: true //synchronous close call locks IE on connection drop
  	    };
-         
+
 		request.onOpen = function(){
 			if(!initiated){
 				_mediator.setTimeOfDisconnect(null);
@@ -83,29 +83,33 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 					_mediator.subscribe(initTopics);
 				}
 				//Load the config once the websocket is established
+				console.log("Reconnectiong with new connection ");
 				_mediator.sendMessage({ type: "config" });
 			}else{
+				console.log("Initiating reconnection ");
 				_mediator.onReconnect();
 			}
 		};
- 	
+
  		request.onError = function(error){
  			var error = "error";
  		};
- 		
+
  		request.onClose = function(error){
+ 			console.log("Mediator onClose called ");
  			_mediator.onDisconnect();
  		};
- 		
+
  		request.onReconnect = function(){
  			var onReconnect = 'reconnect';
  		};
- 		
+
  		request.onReopen = function(){
  			//var onReopen = 'reconnect';
+ 			console.log("Mediator ReOpen called ");
  			_mediator.onReconnect();
  		};
- 		
+
  		var onResponse = function(response) {
  			var responseBody = response.responseBody; //JSON string
  	 		var message = atmosphere.util.parseJSON(responseBody);
@@ -120,53 +124,65 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
             	Ext.MessageBox.alert('Error', message.errorMessage);
             }
  		};
- 		
+
  		request.onMessage = onResponse;
  		request.onMessagePublished = onResponse;
- 		
+
  		ws = socket.subscribe(request);
     };
-    
+
     Mediator.prototype.setTimeOfDisconnect = function(time){
     	timeOfDisconnect = time;
     };
-    
+
     Mediator.prototype.onReconnect = function(){
+    	console.log("Reconnect method called ");
+    	console.log("Time of disconnet "+timeOfDisconnect);
     	if(timeOfDisconnect != null){
+    		console.log("Mediator firing reconnect event ");
 			//Fire reconnect event
 			EventManager.fireEvent("iweb.connection.reconnected", timeOfDisconnect);
-	    	
+
 			var completed = true;
-	    	
+
+			console.log("Setting timeOfDisconnect to Null");
+
 	    	this.setTimeOfDisconnect(null);
-			
+
 			//Send queued messages
 			for(var i=0; i<messageQueue.length; i++){
+
+				console.log("Pushing message in the cache "+JSON.stringify(messageQueue[i]));
 				//Connection was lost again
 				if(!this.sendMessage(messageQueue[i])){
+					console.log("Stopped Pushing message in the cache "+JSON.stringify(messageQueue[i]));
 					completed = false;
 					break;
 				}
 			}
-			
+
 			if(completed){
+				console.log("Emptying cache ");
 				messageQueue = []; //reset
 			}else{
+				console.log("splicing cache ");
 				messageQueue.splice(0,i); //remove successfully sent messages
 			}
-			
+
 			for(var j=0; j<topics.length; j++){
 				this.subscribe(topics[j]);
 			}
     	}
     };
-    
+
     Mediator.prototype.onDisconnect = function(){
+    	console.log("In Diconnected method...Setting timeOfDisconnect to a Value ");
     	this.setTimeOfDisconnect((new Date()).getTime());
     	EventManager.fireEvent("iweb.connection.disconnected");
     };
-    
+
     Mediator.prototype.close = function(){
+    	console.log("Mediator onClose called and inturn unsubscribe");
     	atmosphere.unsubscribe();
     };
 
@@ -190,7 +206,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 		}
     	return false;
     };
-    
+
     Mediator.prototype.publishMessage = function(topic, message){
     	this.sendMessage({
 			type: "publish",
@@ -209,16 +225,16 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     Mediator.prototype.unsubscribe = function(topic) {
     	var index = jQuery.inArray(topic, topics);
     	if(index != -1){ topics.splice(index,1); }
-    	
+
         this.sendMessage({ type: "unsubscribe", topic: topic });
     };
-    
+
     // Send delete message to the rest api
 	Mediator.prototype.sendDeleteMessage = function(url, eventName, responseType) {
 		if(!responseType){
 			responseType = 'json';
 		}
-		
+
 		this.sendMessage({
 			type: 'delete',
 			url: url,
@@ -227,13 +243,13 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 			cookieKeys: CookieManager.getCookies(url)
 		});
 	};
-    
+
     // Send post message to the rest api
 	Mediator.prototype.sendPostMessage = function(url, eventName, payload, responseType) {
 		if(!responseType){
 			responseType = 'json';
 		}
-		
+		console.log('Sending POST message payload:' + JSON.stringify(payload));
 		this.sendMessage({
 			type: 'post',
 			url: url,
@@ -243,13 +259,13 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 			cookieKeys: CookieManager.getCookies(url)
 		});
 	};
-	
+
 	 // Send post message to the rest api
 	Mediator.prototype.sendPutMessage = function(url, eventName, payload, responseType) {
 		if(!responseType){
 			responseType = 'json';
 		}
-		
+		console.log('Sending PUT message payload:' + JSON.stringify(payload));
 		this.sendMessage({
 			type: 'put',
 			url: url,
@@ -265,7 +281,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     	if(!responseType){
     		responseType = 'json';
     	}
-    	
+
         this.sendMessage({
             type: "request",
             url: url,
@@ -278,24 +294,24 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     Mediator.prototype.setSessionId = function(id){
 		sessionId = id;
 	};
-		
+
 	Mediator.prototype.getSessionId = function(){
 		return sessionId;
 	};
-	
+
 	Mediator.prototype.setReinitalizeUrl = function(url){
 		ws.request.url = url;
 	};
-	
+
 	Mediator.prototype.setCookies = function(url, cookies){
 		CookieManager.addCookies(url, cookies);
 	};
-	
+
 	/*** NEED TO MOVE THIS OUT ***/
 	Mediator.prototype.setCurrentUserSessionId = function(id){
 		currentUserSessionId = id;
 	};
-		
+
 	Mediator.prototype.getCurrentUserSessionId = function(){
 		return currentUserSessionId;
 	};
