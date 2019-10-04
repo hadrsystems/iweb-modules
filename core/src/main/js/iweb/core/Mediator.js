@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
-		function(Ext, jQuery, atmosphere, EventManager, CookieManager) {
+        function(Ext, jQuery, atmosphere, EventManager, CookieManager) {
     "use strict";
 
     var _mediator = null;
@@ -59,131 +59,144 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 
     function init(initTopics) {
 
-    	_mediator = new Mediator();
+        _mediator = new Mediator();
 
         var socket = atmosphere;
 
         var request = {
-        	url: 'mediator',
- 	        contentType : "application/json",
- 	        logLevel : 'debug',
- 	        transport : 'websocket' ,
- 	        trackMessageLength : true,
- 	        reconnectInterval : 5000,
- 	        fallbackTransport: 'websocket',
- 	        maxReconnectOnClose : 17280, //24 hours -- whatever the token expiration is...
- 	        closeAsync: true //synchronous close call locks IE on connection drop
- 	    };
+            url: 'mediator',
+            contentType : "application/json",
+            logLevel : 'debug',
+            transport : 'websocket' ,
+            trackMessageLength : true,
+            reconnectInterval : 5000,
+            fallbackTransport: 'websocket',
+            maxReconnectOnClose : 17280, //24 hours -- whatever the token expiration is...
+            closeAsync: true //synchronous close call locks IE on connection drop
+        };
 
-		request.onOpen = function(){
-			if(!initiated){
-				_mediator.setTimeOfDisconnect(null);
-				initiated = true;
-				if(initTopics){
-					_mediator.subscribe(initTopics);
-				}
-				//Load the config once the websocket is established
-				console.log("Reconnectiong with new connection ");
-				_mediator.sendMessage({ type: "config" });
-			}else{
-				console.log("Initiating reconnection ");
-				_mediator.onReconnect();
-			}
-		};
+        request.onOpen = function(){
+            if(!initiated){
+                _mediator.setTimeOfDisconnect(null);
+                initiated = true;
+                if(initTopics){
+                    _mediator.subscribe(initTopics);
+                }
+                //Load the config once the websocket is established
+                console.log("Reconnectiong with new connection ");
+                _mediator.sendMessage({ type: "config" });
+            }else{
+                console.log("Initiating reconnection ");
+                _mediator.onReconnect();
+            }
+        };
 
- 		request.onError = function(error){
- 			var error = "error";
- 		};
+        request.onError = function(error){
+            var error = "error";
+        };
 
- 		request.onClose = function(error){
- 			console.log("Mediator onClose called ");
- 			_mediator.onDisconnect();
- 		};
+        request.onClose = function(error){
+            console.log("Mediator onClose called ");
+            _mediator.onDisconnect();
+        };
 
- 		request.onReconnect = function(){
- 			var onReconnect = 'reconnect';
- 		};
+        //Adding handler for onClientTimeout to fix 10/1/2019 field test issue
+        request.onClientTimeout = function(message){
+            console.log("Mediator onClientTimeout called ");
+            messageQueue.push(message);
+         	_mediator.setTimeOfDisconnect((new Date()).getTime());
+            console.log("Mediator Will initiate reconnection after reconnectionInterval...");
+    		setTimeout(function(){
+      			 ws = socket.subscribe(request);
+    		}, request.reconnectInterval);
+         };
 
- 		request.onReopen = function(){
- 			//var onReopen = 'reconnect';
- 			console.log("Mediator ReOpen called ");
- 			_mediator.onReconnect();
- 		};
+        request.onReconnect = function(){
+            var onReconnect = 'reconnect';
+            console.log("Mediator Reconnect called ");
+            _mediator.onReconnect();
+        };
 
- 		var onResponse = function(response) {
- 			var responseBody = response.responseBody; //JSON string
- 	 		var message = atmosphere.util.parseJSON(responseBody);
+        request.onReopen = function(){
+            //var onReopen = 'reconnect';
+            console.log("Mediator Reopen called ");
+            _mediator.onReconnect();
+        };
+
+        var onResponse = function(response) {
+            var responseBody = response.responseBody; //JSON string
+            var message = atmosphere.util.parseJSON(responseBody);
             if (message.data != null) {//Check to see if there is data
-            	if(message.responseType == "json"){
-            		try{
-            			message.data = JSON.parse(message.data);
-            		}catch(e){} //JS Logging?
-            	}
+                if(message.responseType == "json"){
+                    try{
+                        message.data = JSON.parse(message.data);
+                    }catch(e){} //JS Logging?
+                }
                 EventManager.fireEvent(message.eventName, message.data);
             }else if(message.errorMessage){
-            	Ext.MessageBox.alert('Error', message.errorMessage);
+                Ext.MessageBox.alert('Error', message.errorMessage);
             }
- 		};
+        };
 
- 		request.onMessage = onResponse;
- 		request.onMessagePublished = onResponse;
+        request.onMessage = onResponse;
+        request.onMessagePublished = onResponse;
 
- 		ws = socket.subscribe(request);
+        ws = socket.subscribe(request);
     };
 
     Mediator.prototype.setTimeOfDisconnect = function(time){
-    	timeOfDisconnect = time;
+        timeOfDisconnect = time;
     };
 
     Mediator.prototype.onReconnect = function(){
-    	console.log("Reconnect method called ");
-    	console.log("Time of disconnet "+timeOfDisconnect);
-    	if(timeOfDisconnect != null){
-    		console.log("Mediator firing reconnect event ");
-			//Fire reconnect event
-			EventManager.fireEvent("iweb.connection.reconnected", timeOfDisconnect);
+        console.log("Reconnect method called ");
+        console.log("Time of disconnet "+timeOfDisconnect);
+        if(timeOfDisconnect != null){
+            console.log("Mediator firing reconnect event ");
+            //Fire reconnect event
+            EventManager.fireEvent("iweb.connection.reconnected", timeOfDisconnect);
 
-			var completed = true;
+            var completed = true;
 
-			console.log("Setting timeOfDisconnect to Null");
+            console.log("Setting timeOfDisconnect to Null");
 
-	    	this.setTimeOfDisconnect(null);
+            this.setTimeOfDisconnect(null);
 
-			//Send queued messages
-			for(var i=0; i<messageQueue.length; i++){
+            //Send queued messages
+            for(var i=0; i<messageQueue.length; i++){
 
-				console.log("Pushing message in the cache "+JSON.stringify(messageQueue[i]));
-				//Connection was lost again
-				if(!this.sendMessage(messageQueue[i])){
-					console.log("Stopped Pushing message in the cache "+JSON.stringify(messageQueue[i]));
-					completed = false;
-					break;
-				}
-			}
+                console.log("Pushing message in the cache "+JSON.stringify(messageQueue[i]));
+                //Connection was lost again
+                if(!this.sendMessage(messageQueue[i])){
+                    console.log("Stopped Pushing message in the cache "+JSON.stringify(messageQueue[i]));
+                    completed = false;
+                    break;
+                }
+            }
 
-			if(completed){
-				console.log("Emptying cache ");
-				messageQueue = []; //reset
-			}else{
-				console.log("splicing cache ");
-				messageQueue.splice(0,i); //remove successfully sent messages
-			}
+            if(completed){
+                console.log("Emptying cache ");
+                messageQueue = []; //reset
+            }else{
+                console.log("splicing cache ");
+                messageQueue.splice(0,i); //remove successfully sent messages
+            }
 
-			for(var j=0; j<topics.length; j++){
-				this.subscribe(topics[j]);
-			}
-    	}
+            for(var j=0; j<topics.length; j++){
+                this.subscribe(topics[j]);
+            }
+        }
     };
 
     Mediator.prototype.onDisconnect = function(){
-    	console.log("In Diconnected method...Setting timeOfDisconnect to a Value ");
-    	this.setTimeOfDisconnect((new Date()).getTime());
-    	EventManager.fireEvent("iweb.connection.disconnected");
+        console.log("In Diconnected method...Setting timeOfDisconnect to a Value ");
+        this.setTimeOfDisconnect((new Date()).getTime());
+        EventManager.fireEvent("iweb.connection.disconnected");
     };
 
     Mediator.prototype.close = function(){
-    	console.log("Mediator onClose called and inturn unsubscribe");
-    	atmosphere.unsubscribe();
+        console.log("Mediator onClose called and inturn unsubscribe");
+        atmosphere.unsubscribe();
     };
 
     //Set rest api
@@ -198,124 +211,124 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 
     //Send Message on Rabbit Bus
     Mediator.prototype.sendMessage = function(message) {
-    	if(timeOfDisconnect == null){
-    		ws.push(JSON.stringify(message));
-    		return true;
-		}else{
-			messageQueue.push(message);
-		}
-    	return false;
+        if(timeOfDisconnect == null){
+            ws.push(JSON.stringify(message));
+            return true;
+        }else{
+            messageQueue.push(message);
+        }
+        return false;
     };
 
     Mediator.prototype.publishMessage = function(topic, message){
-    	this.sendMessage({
-			type: "publish",
-			message: JSON.stringify(message),
-			topic: topic
-		});
+        this.sendMessage({
+            type: "publish",
+            message: JSON.stringify(message),
+            topic: topic
+        });
     };
 
     //Subscribe to Message Bus
     Mediator.prototype.subscribe = function(topic) {
-    	if(jQuery.inArray(topic, topics) == -1) { topics.push(topic); }
+        if(jQuery.inArray(topic, topics) == -1) { topics.push(topic); }
         this.sendMessage({ type: "subscribe", topic: topic });
     };
 
     //Unsubscribe from Message Bus
     Mediator.prototype.unsubscribe = function(topic) {
-    	var index = jQuery.inArray(topic, topics);
-    	if(index != -1){ topics.splice(index,1); }
+        var index = jQuery.inArray(topic, topics);
+        if(index != -1){ topics.splice(index,1); }
 
         this.sendMessage({ type: "unsubscribe", topic: topic });
     };
 
     // Send delete message to the rest api
-	Mediator.prototype.sendDeleteMessage = function(url, eventName, responseType) {
-		if(!responseType){
-			responseType = 'json';
-		}
+    Mediator.prototype.sendDeleteMessage = function(url, eventName, responseType) {
+        if(!responseType){
+            responseType = 'json';
+        }
 
-		this.sendMessage({
-			type: 'delete',
-			url: url,
-			eventName: eventName,
-			responseType: responseType,
-			cookieKeys: CookieManager.getCookies(url)
-		});
-	};
+        this.sendMessage({
+            type: 'delete',
+            url: url,
+            eventName: eventName,
+            responseType: responseType,
+            cookieKeys: CookieManager.getCookies(url)
+        });
+    };
 
     // Send post message to the rest api
-	Mediator.prototype.sendPostMessage = function(url, eventName, payload, responseType) {
-		if(!responseType){
-			responseType = 'json';
-		}
-		console.log('Sending POST message payload:' + JSON.stringify(payload));
-		this.sendMessage({
-			type: 'post',
-			url: url,
-			eventName: eventName,
-			payload: JSON.stringify(payload),
-			responseType: responseType,
-			cookieKeys: CookieManager.getCookies(url)
-		});
-	};
+    Mediator.prototype.sendPostMessage = function(url, eventName, payload, responseType) {
+        if(!responseType){
+            responseType = 'json';
+        }
+        console.log('Sending POST message payload:' + JSON.stringify(payload));
+        this.sendMessage({
+            type: 'post',
+            url: url,
+            eventName: eventName,
+            payload: JSON.stringify(payload),
+            responseType: responseType,
+            cookieKeys: CookieManager.getCookies(url)
+        });
+    };
 
-	 // Send post message to the rest api
-	Mediator.prototype.sendPutMessage = function(url, eventName, payload, responseType) {
-		if(!responseType){
-			responseType = 'json';
-		}
-		console.log('Sending PUT message payload:' + JSON.stringify(payload));
-		this.sendMessage({
-			type: 'put',
-			url: url,
-			eventName: eventName,
-			payload: JSON.stringify(payload),
-			responseType: responseType,
-			cookieKeys: CookieManager.getCookies(url)
-		});
-	};
+     // Send post message to the rest api
+    Mediator.prototype.sendPutMessage = function(url, eventName, payload, responseType) {
+        if(!responseType){
+            responseType = 'json';
+        }
+        console.log('Sending PUT message payload:' + JSON.stringify(payload));
+        this.sendMessage({
+            type: 'put',
+            url: url,
+            eventName: eventName,
+            payload: JSON.stringify(payload),
+            responseType: responseType,
+            cookieKeys: CookieManager.getCookies(url)
+        });
+    };
 
     //Send request message to rest api
     Mediator.prototype.sendRequestMessage = function(url, eventName, responseType){
-    	if(!responseType){
-    		responseType = 'json';
-    	}
+        if(!responseType){
+            responseType = 'json';
+        }
 
         this.sendMessage({
             type: "request",
             url: url,
             eventName: eventName,
             responseType: responseType,
-			cookieKeys: CookieManager.getCookies(url)
+            cookieKeys: CookieManager.getCookies(url)
         });
     };
 
     Mediator.prototype.setSessionId = function(id){
-		sessionId = id;
-	};
+        sessionId = id;
+    };
 
-	Mediator.prototype.getSessionId = function(){
-		return sessionId;
-	};
+    Mediator.prototype.getSessionId = function(){
+        return sessionId;
+    };
 
-	Mediator.prototype.setReinitalizeUrl = function(url){
-		ws.request.url = url;
-	};
+    Mediator.prototype.setReinitalizeUrl = function(url){
+        ws.request.url = url;
+    };
 
-	Mediator.prototype.setCookies = function(url, cookies){
-		CookieManager.addCookies(url, cookies);
-	};
+    Mediator.prototype.setCookies = function(url, cookies){
+        CookieManager.addCookies(url, cookies);
+    };
 
-	/*** NEED TO MOVE THIS OUT ***/
-	Mediator.prototype.setCurrentUserSessionId = function(id){
-		currentUserSessionId = id;
-	};
+    /*** NEED TO MOVE THIS OUT ***/
+    Mediator.prototype.setCurrentUserSessionId = function(id){
+        currentUserSessionId = id;
+    };
 
-	Mediator.prototype.getCurrentUserSessionId = function(){
-		return currentUserSessionId;
-	};
-	/****************************/
+    Mediator.prototype.getCurrentUserSessionId = function(){
+        return currentUserSessionId;
+    };
+    /****************************/
 
     return {
         initialize: function(initTopics, callback) {
