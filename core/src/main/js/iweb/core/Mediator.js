@@ -51,7 +51,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 
     var initiated = false;
 
-    var timeOfDisconnect = null;
+    var socketConnected = false;
 
     var cookies = []; //List of cookies to be added to a request/post. Defined in the core.properties file
 
@@ -76,27 +76,29 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         };
 
         request.onOpen = function(){
+            socketConnected = true;
             if(!initiated){
-                _mediator.setTimeOfDisconnect(null);
                 initiated = true;
                 if(initTopics){
                     _mediator.subscribe(initTopics);
                 }
                 //Load the config once the websocket is established
-                console.log("Reconnectiong with new connection ");
+                console.log("Mediator onOpen initiated ");
                 _mediator.sendMessage({ type: "config" });
             }else{
-                console.log("Initiating reconnection ");
+                console.log("Mediator onOpen reconnection ");
                 _mediator.onReconnect();
             }
         };
 
         request.onError = function(error){
+            console.log("Mediator onError called ");
             var error = "error";
         };
 
         request.onClose = function(error){
             console.log("Mediator onClose called ");
+            socketConnected = false;
             _mediator.onDisconnect();
         };
 
@@ -104,7 +106,6 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         request.onClientTimeout = function(message){
             console.log("Mediator onClientTimeout called ");
             messageQueue.push(message);
-         	_mediator.setTimeOfDisconnect((new Date()).getTime());
             console.log("Mediator Will initiate reconnection after reconnectionInterval...");
     		setTimeout(function(){
       			 ws = socket.subscribe(request);
@@ -112,14 +113,15 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
          };
 
         request.onReconnect = function(){
+            console.log("Mediator onReconnect called ");
             var onReconnect = 'reconnect';
-            console.log("Mediator Reconnect called ");
             _mediator.onReconnect();
         };
 
         request.onReopen = function(){
+            console.log("Mediator onReopen called ");
             //var onReopen = 'reconnect';
-            console.log("Mediator Reopen called ");
+            socketConnected = true;
             _mediator.onReconnect();
         };
 
@@ -144,43 +146,32 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         ws = socket.subscribe(request);
     };
 
-    Mediator.prototype.setTimeOfDisconnect = function(time){
-        timeOfDisconnect = time;
-    };
-
     Mediator.prototype.onReconnect = function(){
-        console.log("Reconnect method called ");
-        console.log("Time of disconnet "+timeOfDisconnect);
-        if(timeOfDisconnect != null){
+        console.log("Mediator onReconnect prototype called ");
+        if(socketConnected){
             console.log("Mediator firing reconnect event ");
             //Fire reconnect event
-            EventManager.fireEvent("iweb.connection.reconnected", timeOfDisconnect);
+            EventManager.fireEvent("iweb.connection.reconnected", (new Date()).getTime());
 
-            var completed = true;
+			var completed = true;
+			//Send queued messages
+			for(var i=0; i<messageQueue.length; i++){
+				console.log("Pushing message in the cache "+JSON.stringify(messageQueue[i]));
+				//Connection was lost again
+				if(!this.sendMessage(messageQueue[i])){
+					console.log("Stopped Pushing message in the cache "+JSON.stringify(messageQueue[i]));
+					completed = false;
+					break;
+				}
+			}
 
-            console.log("Setting timeOfDisconnect to Null");
-
-            this.setTimeOfDisconnect(null);
-
-            //Send queued messages
-            for(var i=0; i<messageQueue.length; i++){
-
-                console.log("Pushing message in the cache "+JSON.stringify(messageQueue[i]));
-                //Connection was lost again
-                if(!this.sendMessage(messageQueue[i])){
-                    console.log("Stopped Pushing message in the cache "+JSON.stringify(messageQueue[i]));
-                    completed = false;
-                    break;
-                }
-            }
-
-            if(completed){
-                console.log("Emptying cache ");
-                messageQueue = []; //reset
-            }else{
-                console.log("splicing cache ");
-                messageQueue.splice(0,i); //remove successfully sent messages
-            }
+			if(completed){
+				console.log("Emptying cache ");
+				messageQueue = []; //reset
+			}else{
+				console.log("splicing cache ");
+				messageQueue.splice(0,i); //remove successfully sent messages
+			}
 
             for(var j=0; j<topics.length; j++){
                 this.subscribe(topics[j]);
@@ -189,13 +180,11 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     };
 
     Mediator.prototype.onDisconnect = function(){
-        console.log("In Diconnected method...Setting timeOfDisconnect to a Value ");
-        this.setTimeOfDisconnect((new Date()).getTime());
         EventManager.fireEvent("iweb.connection.disconnected");
     };
 
     Mediator.prototype.close = function(){
-        console.log("Mediator onClose called and inturn unsubscribe");
+        console.log("Mediator close prototype called and inturn unsubscribe");
         atmosphere.unsubscribe();
     };
 
@@ -211,7 +200,8 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 
     //Send Message on Rabbit Bus
     Mediator.prototype.sendMessage = function(message) {
-        if(timeOfDisconnect == null){
+        console.log("Mediator sendMessage with  socketConnected " + socketConnected);
+        if(socketConnected){
             ws.push(JSON.stringify(message));
             return true;
         }else{
@@ -262,7 +252,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if(!responseType){
             responseType = 'json';
         }
-        console.log('Sending POST message payload:' + JSON.stringify(payload));
+        console.log('Mediator Sending POST message payload:' + JSON.stringify(payload));
         this.sendMessage({
             type: 'post',
             url: url,
@@ -278,7 +268,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if(!responseType){
             responseType = 'json';
         }
-        console.log('Sending PUT message payload:' + JSON.stringify(payload));
+        console.log('Mediator Sending PUT message payload:' + JSON.stringify(payload));
         this.sendMessage({
             type: 'put',
             url: url,
