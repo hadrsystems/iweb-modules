@@ -243,6 +243,10 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if(!responseType){
             responseType = 'json';
         }
+        console.log((new Date()).toLocaleString() + 
+        		' Mediator Attempting to DELETE message to ' + url +
+        		' event ' + eventName 
+        		);
  
         this.sendMessage({
             type: 'delete',
@@ -258,7 +262,11 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if(!responseType){
             responseType = 'json';
         }
-        console.log((new Date()).toLocaleString() + ' Mediator Attempting to POST message payload:' + JSON.stringify(payload));
+        console.log((new Date()).toLocaleString() + 
+        		' Mediator Attempting to POST message to ' + url +
+        		' event ' + eventName +
+        		' with payload:' + JSON.stringify(payload)
+        		);
         this.sendMessage({
             type: 'post',
             url: url,
@@ -274,7 +282,11 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if(!responseType){
             responseType = 'json';
         }
-        console.log((new Date()).toLocaleString() + ' Mediator Attempting to PUT message payload:' + JSON.stringify(payload));
+        console.log((new Date()).toLocaleString() + 
+        		' Mediator Attempting to PUT message to ' + url +
+        		' event ' + eventName +
+        		' with payload:' + JSON.stringify(payload)
+        		);
         this.sendMessage({
             type: 'put',
             url: url,
@@ -290,6 +302,10 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if(!responseType){
             responseType = 'json';
         }
+        console.log((new Date()).toLocaleString() + 
+        		' Mediator Attempting to sendRequestMessage to ' + url +
+        		' event ' + eventName 
+        		);
  
         this.sendMessage({
             type: "request",

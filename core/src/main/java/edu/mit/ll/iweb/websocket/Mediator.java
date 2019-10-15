@@ -29,6 +29,7 @@
  */
 package edu.mit.ll.iweb.websocket;
 
+// http://atmosphere-framework.2306103.n4.nabble.com/uuid-and-tracking-id-to-keep-a-track-of-the-each-client-td4652834.html
 import edu.mit.ll.nics.common.rabbitmq.RabbitFactory;
 import edu.mit.ll.nics.common.rabbitmq.RabbitPubSubProducer;
 import org.atmosphere.cpr.AtmosphereHandler;
@@ -92,7 +93,10 @@ import java.util.Map;
  * supports all transports, support message length guarantee, heart beat,
  * message cache thanks to the {@link ManagedService}.
  */
-@AtmosphereHandlerService(path = "/mediator", broadcasterCache = UUIDBroadcasterCache.class, interceptors = TrackMessageSizeInterceptor.class, supportSession = true)
+@AtmosphereHandlerService(path = "/mediator", 
+						broadcasterCache = UUIDBroadcasterCache.class, 
+						interceptors = TrackMessageSizeInterceptor.class, 
+						supportSession = true)
 public class Mediator implements AtmosphereHandler {
 	private static Logger logger = Logger.getLogger(Mediator.class);
 
@@ -141,7 +145,7 @@ public class Mediator implements AtmosphereHandler {
 	@Override
 	public void onRequest(AtmosphereResource r) throws IOException {
 		AtmosphereRequest req = r.getRequest();
-		logger.info("Atmosphere request uuid " + req.uuid());
+		logger.info("Atmosphere resource uuid: " + r.uuid() + " request uuid: " + req.uuid());
 
 		if (req.getMethod().equalsIgnoreCase(GET)) {
 
@@ -160,7 +164,8 @@ public class Mediator implements AtmosphereHandler {
 
 			cache.cacheCandidate(r.getBroadcaster().getID(), r.uuid());
 
-			logger.info("Suspending session id " + req.getSession().getId());
+			logger.info("Suspending session id " + req.getSession().getId() +
+					" Atmosphere resource uuid: " + r.uuid() + " request uuid: " + req.uuid());
 
 			// Tell Atmosphere to allow bi-directional communication by
 			// suspending.
