@@ -141,6 +141,7 @@ public class Mediator implements AtmosphereHandler {
 	@Override
 	public void onRequest(AtmosphereResource r) throws IOException {
 		AtmosphereRequest req = r.getRequest();
+		logger.info("Atmosphere request uuid " + req.uuid());
 
 		if (req.getMethod().equalsIgnoreCase(GET)) {
 
