@@ -198,11 +198,20 @@ public class Mediator implements AtmosphereHandler {
 		AtmosphereResource resource = event.getResource();
 		AtmosphereResponse res = resource.getResponse();
 
-		logger.info("Broadcasting to : "
-				+ (String) SessionHolder.getData(resource.getRequest()
-				.getSession().getId(), "username") + " is suspended? "
-				+ resource.isSuspended());
-
+		logger.info("onStateChange Broadcasting to "
+			+ " resource uuid: " + resource.uuid()
+			+ " is suspended? "	+ resource.isSuspended()
+			+ " of " 
+			+ (String)SessionHolder.getData
+				(resource.getRequest().getSession().getId(), "username") );
+		{
+			BroadcasterCache cache = resource.getBroadcaster().getBroadcasterConfig()
+					.getBroadcasterCache();
+			List<Object> cachedObjects = 
+					cache.retrieveFromCache(resource.getBroadcaster().getID(),resource.uuid());
+			logger.info("Cached objects currently for resource uuid: " + resource.uuid()
+					+ " is of size: "	+ cachedObjects == null ? null : cachedObjects.size());
+		}
 		if (resource.isSuspended()) {
 
 			Object message = event.getMessage();
