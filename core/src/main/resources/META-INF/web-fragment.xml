@@ -43,26 +43,6 @@
 		    <param-value>112400</param-value>
 		</init-param>
 		<init-param>
-			<param-name>org.atmosphere.resumeOnBroadcast</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<init-param>
-			<param-name>org.atmosphere.useNative</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<init-param>
-			<param-name>org.atmosphere.useWebSocket</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<init-param>
-			<param-name>org.atmosphere.useStream</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<init-param>
-    		<param-name>org.atmosphere.cpr.AtmosphereResource.uniqueUUID</param-name>
-    		<param-value>true</param-value>
-		</init-param>
-		<init-param>
 			<param-name>org.atmosphere.cache.UUIDBroadcasterCache.clientIdleTime</param-name>
 			<param-value>1800</param-value>
 		</init-param>
