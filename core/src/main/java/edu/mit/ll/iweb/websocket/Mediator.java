@@ -101,12 +101,7 @@ import java.util.Map;
  */
 @AtmosphereHandlerService(path = "/mediator", 
 						broadcasterCache = UUIDBroadcasterCache.class, 
-						interceptors = { AtmosphereResourceLifecycleInterceptor.class,
-				                         BroadcastOnPostAtmosphereInterceptor.class,
-				                         TrackMessageSizeInterceptor.class,
-				                         HeartbeatInterceptor.class,
-				                         AtmosphereResourceStateRecovery.class
-				                       },
+						interceptors = { TrackMessageSizeInterceptor.class },
 						supportSession = true)
 public class Mediator implements AtmosphereHandler {
 	private static Logger logger = Logger.getLogger(Mediator.class);
