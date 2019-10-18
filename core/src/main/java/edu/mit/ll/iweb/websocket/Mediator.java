@@ -46,12 +46,6 @@ import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.config.service.AtmosphereHandlerService;
 import org.atmosphere.config.service.ManagedService;
 import org.atmosphere.cpr.BroadcasterFactory;
-import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
-import org.atmosphere.interceptor.AtmosphereResourceStateRecovery;
-import org.atmosphere.interceptor.BroadcastOnPostAtmosphereInterceptor;
-import org.atmosphere.interceptor.HeartbeatInterceptor;
-
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
@@ -99,10 +93,10 @@ import java.util.Map;
  * supports all transports, support message length guarantee, heart beat,
  * message cache thanks to the {@link ManagedService}.
  */
-@AtmosphereHandlerService(path = "/mediator", 
-						broadcasterCache = UUIDBroadcasterCache.class, 
-						interceptors = { TrackMessageSizeInterceptor.class },
-						supportSession = true)
+@AtmosphereHandlerService(path = "/mediator",
+		broadcasterCache = UUIDBroadcasterCache.class,
+		interceptors = TrackMessageSizeInterceptor.class,
+		supportSession = true)
 public class Mediator implements AtmosphereHandler {
 	private static Logger logger = Logger.getLogger(Mediator.class);
 
@@ -168,7 +162,6 @@ public class Mediator implements AtmosphereHandler {
 			}
 			*/
 
-			// reuest of Joe
 			// cache.cacheCandidate(r.getBroadcaster().getID(), r.uuid());
 
 			logger.info("Suspending session id " + req.getSession().getId() +
@@ -206,15 +199,15 @@ public class Mediator implements AtmosphereHandler {
 		AtmosphereResponse res = resource.getResponse();
 
 		logger.info("onStateChange Broadcasting to "
-			+ " resource uuid: " + resource.uuid()
-			+ " is suspended? "	+ resource.isSuspended()
-			+ " of " 
-			+ (String)SessionHolder.getData
+				+ " resource uuid: " + resource.uuid()
+				+ " is suspended? "	+ resource.isSuspended()
+				+ " of "
+				+ (String)SessionHolder.getData
 				(resource.getRequest().getSession().getId(), "username") );
 		{
 			BroadcasterCache cache = resource.getBroadcaster().getBroadcasterConfig()
 					.getBroadcasterCache();
-			List<Object> cachedObjects = 
+			List<Object> cachedObjects =
 					cache.retrieveFromCache(resource.getBroadcaster().getID(),resource.uuid());
 			logger.info("Cached objects currently for resource uuid: " + resource.uuid()
 					+ " is of size: "	+ cachedObjects == null ? null : cachedObjects.size());

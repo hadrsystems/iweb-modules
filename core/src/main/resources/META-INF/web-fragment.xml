@@ -31,28 +31,24 @@
 
 -->
 <web-fragment version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
 	<servlet>
 		<description>AtmosphereServlet</description>
 		<servlet-name>AtmosphereServlet</servlet-name>
 		<servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
 		<init-param>
-		    <param-name>org.atmosphere.websocket.bufferSize</param-name>
-		    <param-value>112400</param-value>
+			<param-name>org.atmosphere.websocket.bufferSize</param-name>
+			<param-value>112400</param-value>
 		</init-param>
 		<init-param>
-			<param-name>org.atmosphere.cache.UUIDBroadcasterCache.clientIdleTime</param-name>
-			<param-value>1800</param-value>
+			<param-name>org.atmosphere.websocket.maxTextMessageSize</param-name>
+			<param-value>112400</param-value>
 		</init-param>
 		<init-param>
-		    <param-name>org.atmosphere.websocket.maxTextMessageSize</param-name>
-		    <param-value>112400</param-value>
-		</init-param>
-		<init-param>
-		    <param-name>org.atmosphere.websocket.maxBinaryMessageSize</param-name>
-		    <param-value>112400</param-value>
+			<param-name>org.atmosphere.websocket.maxBinaryMessageSize</param-name>
+			<param-value>112400</param-value>
 		</init-param>
 		<init-param>
 			<param-name>org.atmosphere.websocket.maxIdleTime</param-name>
@@ -61,7 +57,7 @@
 		<!-- Try not to close connection if user gets disconnected for a day -->
 		<init-param>
 			<param-name>org.atmosphere.cpr.CometSupport.maxInactiveActivity</param-name>
-			<param-value>86400000</param-value>
+			<param-value>30000</param-value>
 		</init-param>
 		<init-param>
 			<param-name>org.atmosphere.cpr.AtmosphereFramework.analytics</param-name>
@@ -75,64 +71,3 @@
 		<url-pattern>/mediator/*</url-pattern>
 	</servlet-mapping>
 </web-fragment>
-
-<!-- 
-		<init-param>
-			<param-name>org.atmosphere.cache.UUIDBroadcasterCache.clientIdleTime</param-name>
-			<param-value>1800</param-value>
-		</init-param>
-
-<init-param>
-    <param-name>org.atmosphere.cpr.AtmosphereResource.uniqueUUID</param-name>
-    <param-value>true</param-value>
-</init-param>
-<servlet>
-		<description>AtmosphereServlet</description>
-		<servlet-name>AtmosphereServlet</servlet-name>
-		<servlet-class>org.atmosphere.cpr.MeteorServlet</servlet-class>
-		<init-param>
-			<param-name>org.atmosphere.servlet</param-name>
-			<param-value>org.springframework.web.servlet.DispatcherServlet</param-value>
-		</init-param>
-		<init-param>
-			<param-name>org.atmosphere.cpr.broadcasterClass</param-name>
-			<param-value>org.atmosphere.cpr.DefaultBroadcaster</param-value>
-		</init-param>
-		<init-param>
-			<param-name>org.atmosphere.resumeOnBroadcast</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<init-param>
-			<param-name>org.atmosphere.useNative</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<init-param>
-			<param-name>org.atmosphere.useWebSocket</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<init-param>
-			<param-name>org.atmosphere.useStream</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<init-param>
-			<param-name>contextConfigLocation</param-name>
-			<param-value>/WEB-INF/spring-servlet.xml</param-value>
-		</init-param>
-		<load-on-startup>1</load-on-startup>
-		<async-supported>true</async-supported>
-	</servlet>
-/**
-     * The maximum time, in seconds, for a message to stay cached when using the {@link org.atmosphere.cache.UUIDBroadcasterCache}
-     * <p/>
-     * Default: 60<br>
-     * Value: org.atmosphere.cache.UUIDBroadcasterCache.clientIdleTime
-     */
-    String UUIDBROADCASTERCACHE_CLIENT_IDLETIME = "org.atmosphere.cache.UUIDBroadcasterCache.clientIdleTime";
-    /**
-     * The frequency, in seconds, for the {@link org.atmosphere.cache.UUIDBroadcasterCache} is pruning cached messages.
-     * <p/>
-     * Default: 30<br>
-     * Value: org.atmosphere.cache.UUIDBroadcasterCache.invalidateCacheInterval
-     */
-    String UUIDBROADCASTERCACHE_IDLE_CACHE_INTERVAL = "org.atmosphere.cache.UUIDBroadcasterCache.invalidateCacheInterval";
- -->
