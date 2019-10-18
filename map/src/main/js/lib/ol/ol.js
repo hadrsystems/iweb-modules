@@ -68116,12 +68116,12 @@ ol.Map.prototype.renderFrame_ = function(time) {
   this.frameState_ = frameState;
   this.renderer_.renderFrame(frameState);
 
-  /*if (frameState) {
+  if (frameState) {
     if (frameState.animate) {
       this.render();
     }
-    Array.prototype.push.apply(
-        this.postRenderFunctions_, frameState.postRenderFunctions);
+    /*Array.prototype.push.apply(
+        this.postRenderFunctions_, frameState.postRenderFunctions);*/
 
     var idle = this.preRenderFunctions_.length === 0 &&
         !frameState.viewHints[ol.ViewHint.ANIMATING] &&
@@ -68133,7 +68133,7 @@ ol.Map.prototype.renderFrame_ = function(time) {
           new ol.MapEvent(ol.MapEventType.MOVEEND, this, frameState));
       ol.extent.clone(frameState.extent, this.previousExtent_);
     }
-  }*/
+  }
 
   this.dispatchEvent(
       new ol.MapEvent(ol.MapEventType.POSTRENDER, this, frameState));
