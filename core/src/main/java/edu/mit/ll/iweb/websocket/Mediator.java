@@ -46,6 +46,12 @@ import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.config.service.AtmosphereHandlerService;
 import org.atmosphere.config.service.ManagedService;
 import org.atmosphere.cpr.BroadcasterFactory;
+import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
+import org.atmosphere.interceptor.AtmosphereResourceStateRecovery;
+import org.atmosphere.interceptor.BroadcastOnPostAtmosphereInterceptor;
+import org.atmosphere.interceptor.HeartbeatInterceptor;
+
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
@@ -95,7 +101,12 @@ import java.util.Map;
  */
 @AtmosphereHandlerService(path = "/mediator", 
 						broadcasterCache = UUIDBroadcasterCache.class, 
-						interceptors = TrackMessageSizeInterceptor.class, 
+						interceptors = { AtmosphereResourceLifecycleInterceptor.class,
+				                         BroadcastOnPostAtmosphereInterceptor.class,
+				                         TrackMessageSizeInterceptor.class,
+				                         HeartbeatInterceptor.class,
+				                         AtmosphereResourceStateRecovery.class
+				                       },
 						supportSession = true)
 public class Mediator implements AtmosphereHandler {
 	private static Logger logger = Logger.getLogger(Mediator.class);
@@ -162,7 +173,8 @@ public class Mediator implements AtmosphereHandler {
 			}
 			*/
 
-			cache.cacheCandidate(r.getBroadcaster().getID(), r.uuid());
+			// reuest of Joe
+			// cache.cacheCandidate(r.getBroadcaster().getID(), r.uuid());
 
 			logger.info("Suspending session id " + req.getSession().getId() +
 					" Atmosphere resource uuid: " + r.uuid() + " request uuid: " + req.uuid());
