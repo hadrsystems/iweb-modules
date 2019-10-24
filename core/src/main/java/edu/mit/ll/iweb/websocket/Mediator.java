@@ -29,7 +29,6 @@
  */
 package edu.mit.ll.iweb.websocket;
 
-// http://atmosphere-framework.2306103.n4.nabble.com/uuid-and-tracking-id-to-keep-a-track-of-the-each-client-td4652834.html
 import edu.mit.ll.nics.common.rabbitmq.RabbitFactory;
 import edu.mit.ll.nics.common.rabbitmq.RabbitPubSubProducer;
 import org.atmosphere.cpr.AtmosphereHandler;
@@ -41,11 +40,13 @@ import org.atmosphere.cpr.AtmosphereResourceEventListenerAdapter;
 import org.atmosphere.cpr.AtmosphereResponse;
 import org.atmosphere.cpr.Broadcaster;
 import org.atmosphere.cpr.BroadcasterCache;
+//import org.atmosphere.cache.SessionBroadcasterCache;
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.config.service.AtmosphereHandlerService;
 import org.atmosphere.config.service.ManagedService;
 import org.atmosphere.cpr.BroadcasterFactory;
+import org.atmosphere.handler.AbstractReflectorAtmosphereHandler;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
@@ -97,7 +98,7 @@ import java.util.Map;
 		broadcasterCache = UUIDBroadcasterCache.class,
 		interceptors = TrackMessageSizeInterceptor.class,
 		supportSession = true)
-public class Mediator implements AtmosphereHandler {
+public class Mediator extends AbstractReflectorAtmosphereHandler {
 	private static Logger logger = Logger.getLogger(Mediator.class);
 
 	public static String HANDLER_PATH = "/mediator";
@@ -145,27 +146,12 @@ public class Mediator implements AtmosphereHandler {
 	@Override
 	public void onRequest(AtmosphereResource r) throws IOException {
 		AtmosphereRequest req = r.getRequest();
-		logger.info("Atmosphere resource uuid: " + r.uuid() + " request uuid: " + req.uuid());
 
 		if (req.getMethod().equalsIgnoreCase(GET)) {
 
-			// caching is necessary for polling transports, disable for others
-
-			BroadcasterCache cache = r.getBroadcaster().getBroadcasterConfig()
-					.getBroadcasterCache();
-			/*
-			if (r.transport().equals(TRANSPORT.POLLING)
-					|| r.transport().equals(TRANSPORT.LONG_POLLING)) {
-				cache.cacheCandidate(r.getBroadcaster().getID(), r.uuid());
-			} else {
-				cache.excludeFromCache(r.getBroadcaster().getID(), r);
-			}
-			*/
-
-			// cache.cacheCandidate(r.getBroadcaster().getID(), r.uuid());
-
-			logger.info("Suspending session id " + req.getSession().getId() +
-					" Atmosphere resource uuid: " + r.uuid() + " request uuid: " + req.uuid());
+			logger.info("Running on code built on 10/22/2019-5");
+			logger.info("Using UUIDBroadcasterCache");
+			logger.info("Suspending session id " + req.getSession().getId());
 
 			// Tell Atmosphere to allow bi-directional communication by
 			// suspending.
@@ -193,25 +179,17 @@ public class Mediator implements AtmosphereHandler {
 		}
 	}
 
+
 	@Override
 	public void onStateChange(AtmosphereResourceEvent event) throws IOException {
 		AtmosphereResource resource = event.getResource();
 		AtmosphereResponse res = resource.getResponse();
 
-		logger.info("onStateChange Broadcasting to "
-				+ " resource uuid: " + resource.uuid()
-				+ " is suspended? "	+ resource.isSuspended()
-				+ " of "
-				+ (String)SessionHolder.getData
-				(resource.getRequest().getSession().getId(), "username") );
-		{
-			BroadcasterCache cache = resource.getBroadcaster().getBroadcasterConfig()
-					.getBroadcasterCache();
-			List<Object> cachedObjects =
-					cache.retrieveFromCache(resource.getBroadcaster().getID(),resource.uuid());
-			logger.info("Cached objects currently for resource uuid: " + resource.uuid()
-					+ " is of size: "	+ cachedObjects == null ? null : cachedObjects.size());
-		}
+		logger.info("Broadcasting to : "
+				+ (String) SessionHolder.getData(resource.getRequest()
+				.getSession().getId(), "username") + " is suspended? "
+				+ resource.isSuspended());
+
 		if (resource.isSuspended()) {
 
 			Object message = event.getMessage();
@@ -222,10 +200,11 @@ public class Mediator implements AtmosphereHandler {
 
 			if (message instanceof List) {
 				for (Object s : (List<Object>) message) {
-					res.getWriter().write((String) s);
+
+					twophaseWrite(res,s.toString());
 				}
 			} else {
-				res.getWriter().write((String) message);
+				twophaseWrite(res,(String) message);
 			}
 
 			switch (resource.transport()) {
@@ -235,7 +214,7 @@ public class Mediator implements AtmosphereHandler {
 					// this is failover
 					break;
 				default:
-					res.getWriter().flush();
+
 					break;
 			}
 		} else if (!event.isResuming()) {
@@ -243,6 +222,31 @@ public class Mediator implements AtmosphereHandler {
 					+ resource.getRequest().getSession().getId() + ">");
 		}
 	}
+
+
+	private void twophaseWrite(AtmosphereResponse res,String message) throws IOException
+	{
+
+		if(res!=null)
+		{
+			logger.info("Atmosphere Response resource uuid: \" + res.resource().uuid()");
+			//send a single character in the first writer
+			logger.info("From twophaseWrite::Writing the prefix");
+			res.getWriter().write("T");
+			res.getWriter().flush();
+
+			//second writer
+			logger.info("From twophaseWrite::Writing the message::" + message);
+			res.getWriter().write(message);
+			res.getWriter().flush();
+
+		}
+
+	}
+
+
+
+
 
 	@Override
 	public void destroy() {
