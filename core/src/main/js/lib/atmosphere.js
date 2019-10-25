@@ -239,8 +239,10 @@
                 partialMessage: "",
                 errorHandled: false,
                 closedByClientTimeout: false,
-                ffTryingReconnect: false
-            };
+                ffTryingReconnect: false,
+                messageReason: '',
+                messageCode: ''
+           };
 
             /**
              * {websocket} Opened web socket.
@@ -1522,6 +1524,8 @@
                         return;
                     }
 
+                    _response.messageReason = reason;
+                    _response.messageCode = message.code;
                     _invokeClose(webSocketOpened);
 
                     _response.state = 'closed';

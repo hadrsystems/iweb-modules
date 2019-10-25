@@ -103,8 +103,10 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         request.onClose = function(error){
             socketConnected = false;
             console.log((new Date()).toLocaleString() + " Mediator onClose called  setting socketConnected " + socketConnected);
-            _mediator.onDisconnect();
-        };
+            if (typeof error.messageCode === 'undefined' || error.messageCode != 1000) {
+                _mediator.onDisconnect();
+            }
+         };
  
         //Adding handler for onClientTimeout to fix 10/1/2019 field test issue
         request.onClientTimeout = function(message){

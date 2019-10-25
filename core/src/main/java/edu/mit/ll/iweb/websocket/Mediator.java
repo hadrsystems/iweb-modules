@@ -149,7 +149,7 @@ public class Mediator extends AbstractReflectorAtmosphereHandler {
 
 		if (req.getMethod().equalsIgnoreCase(GET)) {
 
-			logger.info("Running on code built on 10/22/2019-5");
+			logger.info("Running on code built on 10/24/2019-1");
 			logger.info("Using UUIDBroadcasterCache");
 			logger.info("Suspending session id " + req.getSession().getId());
 
@@ -179,7 +179,7 @@ public class Mediator extends AbstractReflectorAtmosphereHandler {
 		}
 	}
 
-
+	/****
 	@Override
 	public void onStateChange(AtmosphereResourceEvent event) throws IOException {
 		AtmosphereResource resource = event.getResource();
@@ -243,7 +243,7 @@ public class Mediator extends AbstractReflectorAtmosphereHandler {
 		}
 
 	}
-
+	*****/
 
 
 
