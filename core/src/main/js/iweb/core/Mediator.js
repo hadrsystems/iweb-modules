@@ -32,6 +32,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     "use strict";
  
     var _mediator = null;
+    var _interval = null;
  
     var ws = null;
  
@@ -104,8 +105,9 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
             socketConnected = false;
             console.log((new Date()).toLocaleString() + " Mediator onClose called  setting socketConnected " + socketConnected);
             if (typeof error.messageCode === 'undefined' || error.messageCode != 1000) {
+                console.log((new Date()).toLocaleString() + " Mediator signalling disconnect...");
                 _mediator.onDisconnect();
-            }
+            } 
          };
  
         //Adding handler for onClientTimeout to fix 10/1/2019 field test issue
@@ -150,8 +152,58 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         request.onMessagePublished = onResponse;
  
         ws = socket.subscribe(request);
+        _interval = window.setInterval(
+        	function() {
+                var xhr = new XMLHttpRequest();
+                
+                var file = "login/images/scout_logo.png";
+                var randomNum = Math.round(Math.random() * 10000);
+             
+                xhr.open('HEAD', file + "?rand=" + randomNum, true);
+                xhr.send();
+                 
+                xhr.addEventListener("readystatechange", processRequest, false);
+                function processRequest(e) {
+                  if (xhr.readyState == 4) {
+                    if (xhr.status >= 200 && xhr.status < 304) {
+                      //alert("connection exists!");
+        			  console.log((new Date()).toLocaleString() + " Internet connection alive... ");
+                    } else {
+                      //alert("connection doesn't exist!");
+          			  console.log((new Date()).toLocaleString() + " Internet connection lost... ");
+          	          EventManager.fireEvent("iweb.connection.disconnected");
+                    }
+                  }
+                }
+        		
+        	}, 30000);
     };
  
+    // synchrnous call to check if connection exists
+    Mediator.prototype.doesConnectionExist = function () {
+        var xhr = new XMLHttpRequest();
+        
+        var file = "login/images/scout_logo.png";
+        var randomNum = Math.round(Math.random() * 10000);
+     
+        xhr.open('HEAD', file + "?rand=" + randomNum, true);
+        xhr.send();
+         
+        xhr.addEventListener("readystatechange", processRequest, false);
+        function processRequest(e) {
+          if (xhr.readyState == 4) {
+            if (xhr.status >= 200 && xhr.status < 304) {
+              //alert("connection exists!");
+			  console.log((new Date()).toLocaleString() + " Internet connection alive... ");
+            } else {
+              //alert("connection doesn't exist!");
+  			  console.log((new Date()).toLocaleString() + " Internet connection lost... ");
+  	          EventManager.fireEvent("iweb.connection.disconnected");
+            }
+          }
+        }
+    }
+    
     Mediator.prototype.onReconnect = function(){
         console.log((new Date()).toLocaleString() + " Mediator onReconnect prototype called with  socketConnected " + socketConnected);
         if(socketConnected){
