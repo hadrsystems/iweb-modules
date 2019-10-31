@@ -159,6 +159,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
                 var file = "login/images/scout_logo.png";
                 var randomNum = Math.round(Math.random() * 10000);
              
+                xhr.timeout = 2000; // time in milliseconds
                 xhr.open('HEAD', file + "?rand=" + randomNum, true);
                 xhr.send();
                  
@@ -167,16 +168,27 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
                   if (xhr.readyState == 4) {
                     if (xhr.status >= 200 && xhr.status < 304) {
                       //alert("connection exists!");
-        			  console.log((new Date()).toLocaleString() + " Internet connection alive... ");
+        			  console.log((new Date()).toLocaleString() + " Mediator timer signalling connection alive... ");
+        			  //EventManager.fireEvent("iweb.connection.reconnected", (new Date()).getTime());
                     } else {
                       //alert("connection doesn't exist!");
-          			  console.log((new Date()).toLocaleString() + " Internet connection lost... ");
+          			  console.log((new Date()).toLocaleString() + " Mediator timer signalling connection lost... ");
           	          EventManager.fireEvent("iweb.connection.disconnected");
                     }
                   }
                 }
-        		
         	}, 30000);
+        // Update the online status icon based on connectivity
+        window.addEventListener('online',  
+        		function() { 
+        			console.log((new Date()).toLocaleString() + " Mediator windows event signalling connection alive... ");
+        			//EventManager.fireEvent("iweb.connection.reconnected", (new Date()).getTime()); 
+        			});
+        window.addEventListener('offline', 
+        		function() { 
+			  		console.log((new Date()).toLocaleString() + " Mediator windows event signalling connection lost... ");
+        			EventManager.fireEvent("iweb.connection.disconnected"); 
+        			});
     };
  
     // synchrnous call to check if connection exists
