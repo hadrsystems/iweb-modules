@@ -58,8 +58,6 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 
     var ls = window.localStorage;
 
-    var cacheMap = new Map();
-
     var lsArray = [];
  
     function Mediator() {}
