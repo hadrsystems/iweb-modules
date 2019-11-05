@@ -321,10 +321,13 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
                     console.log((new Date()).toLocaleString() + " Mediator chat message " + JSON.stringify(message) + " search on cache");
                     var element = messageQueue.find( 
                     					function(mqElement) { return JSON.parse(mqElement.payload).chatid == payload.chatid});
-                    if (element == undefined) {
-                        console.log((new Date()).toLocaleString() + " Mediator chat message " + JSON.stringify(message) + " not in cache, so adding");
-                        messageQueue.push(message);
+                    if (element != undefined) {
+                        console.log((new Date()).toLocaleString() + " Mediator chat message " + JSON.stringify(message) + " in cache, removing");
+                        var pos = messageQueue.indexOf(element);
+                        var removedItem = messageQueue.splice(pos, 1);
                     }
+                    console.log((new Date()).toLocaleString() + " Mediator chat message " + JSON.stringify(message) + " added to cache");
+                    messageQueue.push(message);
                 }
         	}
         }
