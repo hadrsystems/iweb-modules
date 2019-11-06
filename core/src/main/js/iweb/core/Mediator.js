@@ -31,6 +31,8 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         function(Ext, jQuery, atmosphere, EventManager, CookieManager) {
     "use strict";
  
+    var _DEBUG = false;
+    
     var _mediator = null;
     var _interval = null;
  
@@ -61,6 +63,8 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     var lsArray = [];
  
     function Mediator() {}
+    function Logger() {}
+    var logger = new Logger();
  
     function init(initTopics) {
  
@@ -88,18 +92,18 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
                     _mediator.subscribe(initTopics);
                 }
                 //Load the config once the websocket is established
-                console.log((new Date()).toLocaleString() + " Mediator onOpen initiated setting socketConnected " + socketConnected);
+                logger.log(" Mediator onOpen initiated setting socketConnected " + socketConnected);
                 _mediator.sendMessage({ type: "config" });
             }else{
-                console.log((new Date()).toLocaleString() + " Mediator onOpen reconnection setting socketConnected " + socketConnected);
+                logger.log(" Mediator onOpen reconnection setting socketConnected " + socketConnected);
                 _mediator.onReconnect();
             }
         };
  
         request.onError = function(error){
-            console.log((new Date()).toLocaleString() + " Mediator onError called ");
+            logger.log(" Mediator onError called ");
  //          if (error.hasOwnProperty('messages') && (error.messages.length > 0)) {
- //               console.log((new Date()).toLocaleString() + " Mediator onError message being cached");
+ //               logger.log(" Mediator onError message being cached");
  //               messageQueue.push(message);
  //           }
 
@@ -107,9 +111,9 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
  
         request.onClose = function(error){
             socketConnected = false;
-            console.log((new Date()).toLocaleString() + " Mediator onClose called  setting socketConnected " + socketConnected);
+            logger.log(" Mediator onClose called  setting socketConnected " + socketConnected);
             if (typeof error.messageCode == 'undefined' || error.messageCode != 1000) {
-                console.log((new Date()).toLocaleString() + " Mediator signalling disconnect...");
+                logger.log(" Mediator signalling disconnect...");
                 _mediator.onDisconnect();
             } else {
         		_mediator.doesConnectionExist();
@@ -118,16 +122,15 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
  
         //Adding handler for onClientTimeout to fix 10/1/2019 field test issue
         request.onClientTimeout = function(message){
-            console.log((new Date()).toLocaleString() + " Mediator onClientTimeout called ");
             messageQueue.push(message);
-            console.log((new Date()).toLocaleString() + " Mediator Will initiate reconnection after reconnectionInterval...");
+            logger.log(" Mediator onClientTimeout Will initiate reconnection after reconnectionInterval...");
     		setTimeout(function(){
       			 ws = socket.subscribe(request);
     		}, request.reconnectInterval);
          };
  
         request.onReconnect = function(){
-            console.log((new Date()).toLocaleString() + " Mediator onReconnect called with socketConnected " + socketConnected);
+        	logger.log(" Mediator onReconnect called with socketConnected " + socketConnected);
             var onReconnect = 'reconnect';
             _mediator.onReconnect();
         };
@@ -135,7 +138,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         request.onReopen = function(){
             //var onReopen = 'reconnect';
             socketConnected = true;
-            console.log((new Date()).toLocaleString() + " Mediator onReopen called  setting socketConnected " + socketConnected);
+            logger.log(" Mediator onReopen called  setting socketConnected " + socketConnected);
             _mediator.onReopen();
         };
  
@@ -147,6 +150,15 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
                     try{
                         message.data = JSON.parse(message.data);
                     }catch(e){} //JS Logging?
+                }
+                if (message.eventName.startsWith('iweb.NICS.collabroom.') &&
+                		message.eventName.endsWith('.chat')) {
+                    try{
+            			logger.log((new Date()).toLocaleString() 
+            					+ " Mediator onResponse event " + message.eventName 
+            					+ " with data: " + JSON.stringify(message.data));
+                    }catch(e){} //JS Logging?
+                	
                 }
                 EventManager.fireEvent(message.eventName, message.data);
             }else if(message.errorMessage){
@@ -165,17 +177,24 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         // Update the online status icon based on connectivity
         window.addEventListener('online',  
         		function() { 
-        			console.log((new Date()).toLocaleString() + " Mediator windows event signalling connection alive... ");
+        			logger.log(" Mediator windows event signalling connection alive... ");
         			//EventManager.fireEvent("iweb.connection.reconnected", (new Date()).getTime()); 
         			});
         window.addEventListener('offline', 
         		function() { 
-			  		console.log((new Date()).toLocaleString() + " Mediator windows event signalling connection lost... ");
+			  		logger.log(" Mediator windows event signalling connection lost... ");
         			//EventManager.fireEvent("iweb.connection.disconnected"); 
 			  		_mediator.onDisconnect();
         			});
     };
  
+    Logger.prototype.log = function (msg) {
+    	if (_DEBUG) { console.log((new Date()).toLocaleString() + msg); }
+    }
+    Logger.prototype.logAlways = function (msg) {
+    	console.log((new Date()).toLocaleString() + msg);
+    }
+    
     // synchrnous call to check if connection exists
     Mediator.prototype.doesConnectionExist = function () {
         var xhr = new XMLHttpRequest();
@@ -192,10 +211,10 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
           if (xhr.readyState == 4) {
             if (xhr.status >= 200 && xhr.status < 304) {
               //alert("connection exists!");
-			  console.log((new Date()).toLocaleString() + " Mediator doesConnectionExist determined connection alive... ");
+			  logger.log(" Mediator doesConnectionExist determined connection alive... ");
             } else {
               //alert("connection doesn't exist!");
-  			  console.log((new Date()).toLocaleString() + " Mediator doesConnectionExist determined connection lost... ");
+  			  logger.log(" Mediator doesConnectionExist determined connection lost... ");
   	          EventManager.fireEvent("iweb.connection.disconnected");
             }
           }
@@ -203,45 +222,46 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     }
     
     Mediator.prototype.onReconnect = function(){
-        console.log((new Date()).toLocaleString() + " Mediator onReconnect prototype called with  socketConnected " + socketConnected);
+    	logger.log(" Mediator onReconnect prototype called with  socketConnected " + socketConnected); 
     }
     
     Mediator.prototype.onReopen = function(){
-        console.log((new Date()).toLocaleString() + " Mediator onReopen prototype called with  socketConnected " + socketConnected);
+        logger.log(" Mediator onReopen prototype called with  socketConnected " + socketConnected);
         if(socketConnected){
-            console.log((new Date()).toLocaleString() + " Mediator firing reconnect event ");            
             //check messageQueue has all the message from localStorage
-            console.log('Before find Delta:: messageQueue:: length is::'+ messageQueue.length + JSON.stringify(messageQueue))
+        	logger.log('Before find Delta:: messageQueue:: length is::'+ messageQueue.length + JSON.stringify(messageQueue));
             ls.setItem('mqData',JSON.stringify(messageQueue)); // debugging purpose removed after testing
             var deltaCache = this.findDelta(JSON.parse(ls.getItem('lsData')), messageQueue);
-            console.log('deltaCache::' + JSON.stringify(deltaCache));
+        	logger.log('deltaCache::' + JSON.stringify(deltaCache));
             messageQueue.push.apply(messageQueue,deltaCache);           
             this.clearLocalStorage();//clear local storage after delta is added to the offline cache
-            console.log('** Cleared local storage after adding delta **');
-            //Fire reconnect event
-            EventManager.fireEvent("iweb.connection.reconnected", (new Date()).getTime()); 
+            logger.log('** Cleared local storage after adding delta **');
+            
             var completed = true;
             
 			for(var i=0; i<messageQueue.length; i++){
-				console.log((new Date()).toLocaleString() + " Pushing message in the cache "+JSON.stringify(messageQueue[i]));
+				logger.log(" Mediator processing message from cache "+JSON.stringify(messageQueue[i]));
 				//Connection was lost again
 				if(!this.sendMessage(messageQueue[i])){
-					console.log((new Date()).toLocaleString() + " Stopped Pushing message in the cache "+JSON.stringify(messageQueue[i]));
+					logger.log(" Mediator sopped processing message from cache "+JSON.stringify(messageQueue[i]));
 					completed = false;
 					break;
 				}
 			}
 			if(completed){
-				console.log((new Date()).toLocaleString() + " Emptying cache ");
+				logger.log(" Mediator emptying cache ");
 				messageQueue = []; //reset
 			}else{
-				console.log((new Date()).toLocaleString() + " Splicing cache ");
+				logger.log(" Mediator splicing cache ");
 				messageQueue.splice(0,i); //remove successfully sent messages
 			}
  
             for(var j=0; j<topics.length; j++){
                 this.subscribe(topics[j]);
             }
+            //Fire reconnect event
+            logger.log(" Mediator firing reconnect event ");          
+            EventManager.fireEvent("iweb.connection.reconnected", (new Date()).getTime()); 
         }
     };
 
@@ -253,13 +273,13 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     Mediator.prototype.findDelta = function (lstg, mq)  {      
         var delta = [];
         var mapLstg = this.convertArrayToMap(lstg);
-        console.log('converted local storage map::mapLstg:: length:'+ Object.keys(mapLstg).length +':::' + JSON.stringify(mapLstg));
+        logger.log('converted local storage map::mapLstg:: length:'+ Object.keys(mapLstg).length +':::' + JSON.stringify(mapLstg));
         var mapMq = this.convertArrayToMap(mq); 
-        console.log('converted messageQueuq map::mapMq:: length:' + Object.keys(mapLstg).length+':::' + JSON.stringify(mapMq));
+        logger.log('converted messageQueuq map::mapMq:: length:' + Object.keys(mapLstg).length+':::' + JSON.stringify(mapMq));
 
         for (var id in mapLstg) {
             if (!mapMq.hasOwnProperty(id)) {
-                console.log('Found one delta with id:' + id +' and value:'+mapLstg[id]);
+                logger.log('Found one delta with id:' + id +' and value:'+mapLstg[id]);
                 delta.push(mapLstg[id]);
             } 
         }  
@@ -271,7 +291,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         for (var i=0; i < array.length; i++) {
              if(array[i].type == 'post' || array[i].type == 'put'){
                 var parsedKey = JSON.parse(array[i].payload).seqtime ?  JSON.parse(array[i].payload).seqtime : JSON.parse(array[i].payload).seqnum;
-                console.log('parsedKey::' + parsedKey);
+                logger.log('parsedKey::' + parsedKey);
                 map[ parsedKey] = array[i];                
              }else{
                //msg's with no payload 
@@ -286,7 +306,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     };
  
     Mediator.prototype.close = function(){
-        console.log((new Date()).toLocaleString() + " Mediator close prototype called and inturn unsubscribe");
+    	logger.log(" Mediator close prototype called and inturn unsubscribe");
         atmosphere.unsubscribe();
     };
  
@@ -302,31 +322,34 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
  
     //Send Message on Rabbit Bus
     Mediator.prototype.sendMessage = function(message) {
-        console.log((new Date()).toLocaleString() + " Mediator sendMessage " + JSON.stringify(message) + " with  socketConnected " + socketConnected);
-        if(socketConnected){
-            console.log((new Date()).toLocaleString() + " Mediator message " + JSON.stringify(message) + " is on the wire");
+    	if (message.eventName != undefined) {
+    		if ((message.eventName.indexOf('feature.') >= 0) || (message.eventName.indexOf('chat') >= 0)) {
+                logger.logAlways(" Mediator sendMessage " + JSON.stringify(message) + " with  socketConnected " + socketConnected);
+    		}
+    	}
+        if (socketConnected) {
+            logger.log(" Mediator message " + JSON.stringify(message) + " is on the wire");
             ws.push(JSON.stringify(message));
              // clear array as msg's pushed to websocket
             lsArray = [];
-            console.log('<-- Cleared lsArray after ws.push -->');
+            logger.log('<-- Cleared lsArray after ws.push -->');
             return true;
         }else{
         	if (message.payload != undefined) {
         		var payload = JSON.parse(message.payload);
-                console.log((new Date()).toLocaleString() + " Mediator message payload " + JSON.stringify(payload) );
+                logger.log(" Mediator message payload " + JSON.stringify(payload) );
                 if (payload.chatid == undefined) {
-                    console.log((new Date()).toLocaleString() + " Mediator non-chat message " + JSON.stringify(message) + " added to cache");
+                	logger.log(" Mediator non-chat message " + JSON.stringify(message) + " added to cache");
                     messageQueue.push(message);
                 } else {
-                    console.log((new Date()).toLocaleString() + " Mediator chat message " + JSON.stringify(message) + " search on cache");
-                    var element = messageQueue.find( 
+                	logger.log(" Mediator chat message " + JSON.stringify(message) + " search on cache");
+                    var index = messageQueue.findIndex( 
                     					function(mqElement) { return JSON.parse(mqElement.payload).chatid == payload.chatid});
-                    if (element != undefined) {
-                        console.log((new Date()).toLocaleString() + " Mediator chat message " + JSON.stringify(message) + " in cache, removing");
-                        var pos = messageQueue.indexOf(element);
-                        var removedItem = messageQueue.splice(pos, 1);
+                    if (index != -1) {
+                    	logger.log(" Mediator chat message " + JSON.stringify(message) + " in cache, removing");
+                        var removedItem = messageQueue.splice(index, 1);
                     }
-                    console.log((new Date()).toLocaleString() + " Mediator chat message " + JSON.stringify(message) + " added to cache");
+                    logger.log(" Mediator chat message " + JSON.stringify(message) + " added to cache");
                     messageQueue.push(message);
                 }
         	}
@@ -337,7 +360,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     Mediator.prototype.cacheMessage = function(message){
         lsArray.push(message);
         ls.setItem('lsData',JSON.stringify(lsArray));
-        console.log('localStorage::' + ls.getItem('lsData'));
+        logger.log('localStorage::' + ls.getItem('lsData'));
     }
  
     Mediator.prototype.publishMessage = function(topic, message){
@@ -373,7 +396,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if(!responseType){
             responseType = 'json';
         }
-        console.log((new Date()).toLocaleString() + 
+    	logger.log(
         		' Mediator Attempting to DELETE message to ' + url +
         		' event ' + eventName 
                 );
@@ -393,7 +416,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if(!responseType){
             responseType = 'json';
         }
-        console.log((new Date()).toLocaleString() + 
+    	logger.log(
         		' Mediator Attempting to POST message to ' + url +
         		' event ' + eventName +
                 ' with payload:' + JSON.stringify(payload)
@@ -415,7 +438,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if(!responseType){
             responseType = 'json';
         }
-        console.log((new Date()).toLocaleString() + 
+    	logger.log(
         		' Mediator Attempting to PUT message to ' + url +
         		' event ' + eventName +
         		' with payload:' + JSON.stringify(payload)
@@ -437,7 +460,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if(!responseType){
             responseType = 'json';
         }
-        console.log((new Date()).toLocaleString() + 
+    	logger.log(
         		' Mediator Attempting to sendRequestMessage to ' + url +
         		' event ' + eventName 
                 );
