@@ -177,14 +177,14 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         // Update the online status icon based on connectivity
         window.addEventListener('online',  
         		function() { 
-        			logger.log(" Mediator windows event signalling connection alive... ");
+        			logger.logAlways(" Mediator windows event signalling connection alive... ");
         			//EventManager.fireEvent("iweb.connection.reconnected", (new Date()).getTime()); 
         			});
         window.addEventListener('offline', 
         		function() { 
-			  		logger.log(" Mediator windows event signalling connection lost... ");
-        			//EventManager.fireEvent("iweb.connection.disconnected"); 
-			  		_mediator.onDisconnect();
+			  		logger.logAlways(" Mediator windows event signalling connection lost... ");
+			  		socketConnected = false;
+ 			  		_mediator.onDisconnect();
         			});
     };
  
@@ -214,7 +214,8 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 			  logger.log(" Mediator doesConnectionExist determined connection alive... ");
             } else {
               //alert("connection doesn't exist!");
-  			  logger.log(" Mediator doesConnectionExist determined connection lost... ");
+  			  logger.logAlways(" Mediator doesConnectionExist determined connection lost... ");
+		  	  socketConnected = false;
   	          EventManager.fireEvent("iweb.connection.disconnected");
             }
           }
