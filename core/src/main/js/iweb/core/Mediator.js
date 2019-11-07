@@ -34,7 +34,9 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     var _DEBUG = false;
     
     var _mediator = null;
-    var _interval = null;
+
+    var _CONNECTION_CHECK_INTERVAL = 20000;
+    var stopConnectionCheck = false;
  
     var ws = null;
  
@@ -170,18 +172,25 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         request.onMessagePublished = onResponse;
  
         ws = socket.subscribe(request);
-        _interval = window.setInterval(
-        	function() {
-        		_mediator.doesConnectionExist();
-        	}, 30000);
-        // Update the online status icon based on connectivity
+        
+        function connectionCheck()
+        {
+    		_mediator.doesConnectionExist();
+    		if (!stopConnectionCheck)
+    			window.setTimeout(connectionCheck, _CONNECTION_CHECK_INTERVAL);
+        }
+		window.setTimeout(connectionCheck, _CONNECTION_CHECK_INTERVAL);
+
+		// Update the online status icon based on connectivity
         window.addEventListener('online',  
         		function() { 
+					stopConnectionCheck = true;
         			logger.logAlways(" Mediator windows event signalling connection alive... ");
         			//EventManager.fireEvent("iweb.connection.reconnected", (new Date()).getTime()); 
         			});
         window.addEventListener('offline', 
         		function() { 
+					stopConnectionCheck = true;
 			  		logger.logAlways(" Mediator windows event signalling connection lost... ");
 			  		socketConnected = false;
  			  		_mediator.onDisconnect();
@@ -214,7 +223,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 			  logger.logAlways(" Mediator doesConnectionExist determined connection alive... ");
             } else {
               //alert("connection doesn't exist!");
-  			  logger.logAlways(" Mediator doesConnectionExist determined connection lost... ");
+              logger.logAlways(" Mediator doesConnectionExist determined connection lost... ");
 		  	  socketConnected = false;
   	          EventManager.fireEvent("iweb.connection.disconnected");
             }
