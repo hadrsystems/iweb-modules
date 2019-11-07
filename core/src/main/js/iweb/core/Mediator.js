@@ -211,7 +211,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
           if (xhr.readyState == 4) {
             if (xhr.status >= 200 && xhr.status < 304) {
               //alert("connection exists!");
-			  logger.log(" Mediator doesConnectionExist determined connection alive... ");
+			  logger.logAlways(" Mediator doesConnectionExist determined connection alive... ");
             } else {
               //alert("connection doesn't exist!");
   			  logger.logAlways(" Mediator doesConnectionExist determined connection lost... ");
