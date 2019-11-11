@@ -65,28 +65,29 @@
     background-color: #FF0000;
     color: #FFFFFF;
     font-weight: bold;
-    font-size: 150%;
-    left: 50% !important;
+    font-size: 75%;
+    right: 0% !important;
     margin-top: -155px !important;
     margin-left: -250px !important;
     padding: 4px;
     position: fixed;
     text-align: center;
-    top: 50% !important;
+    bottom: 0% !important;
     width:31%;
 }
 
 #cDisconnectContent {
     background-color: #FF5733;
-    font-size: 150%;
-    left: 50% !important;
+    font-size: 75%;
+    right: 0% !important;
     margin-top: -125px !important;
     margin-left: -250px !important;
     padding: 25px;
     position: fixed;
     text-align: center;
-    top: 50% !important;
+    bottom: 0% !important;
     width:31%;
+    z-index: -1;
 }
 
 #cDisconnectContent hr {

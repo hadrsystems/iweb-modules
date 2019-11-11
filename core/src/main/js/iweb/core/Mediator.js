@@ -186,7 +186,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         		function() { 
 					stopConnectionCheck = true;
         			logger.logAlways(" Mediator windows event signalling connection alive... ");
-        			//EventManager.fireEvent("iweb.connection.reconnected", (new Date()).getTime()); 
+        			EventManager.fireEvent("iweb.connection.reconnected", (new Date()).getTime()); 
         			});
         window.addEventListener('offline', 
         		function() { 
@@ -220,6 +220,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
           if (xhr.readyState == 4) {
             if (xhr.status >= 200 && xhr.status < 304) {
               //alert("connection exists!");
+    	      EventManager.fireEvent("iweb.connection.reconnected");
 			  logger.logAlways(" Mediator doesConnectionExist determined connection alive... ");
             } else {
               //alert("connection doesn't exist!");
