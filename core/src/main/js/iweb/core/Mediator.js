@@ -31,7 +31,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         function(Ext, jQuery, atmosphere, EventManager, CookieManager) {
     "use strict";
  
-    var _DEBUG = false;
+    var _DEBUG = true;
     
     var _mediator = null;
 
@@ -312,6 +312,23 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         return map;
     }
  
+    Mediator.prototype.convertArrayToMap1 = function (array) {
+        var map = {};        
+        for (var i=0; i < array.length; i++) {
+             if(array[i].type == 'post' || array[i].type == 'put'){
+                //var parsedKey = JSON.parse(array[i].payload).seqtime ?  JSON.parse(array[i].payload).seqtime : JSON.parse(array[i].payload).seqnum;
+                if(JSON.parse(array[i].payload).seqtime != null){
+                    parsedKey = JSON.parse(array[i].payload).seqtime;
+                    console.log('parsedKey::' + parsedKey);
+                    map[ parsedKey] = array[i];  
+                }                              
+             }else{
+               //msg's with no payload 
+             }             
+                 
+        }
+        return map;
+    }
     Mediator.prototype.onDisconnect = function(){
         EventManager.fireEvent("iweb.connection.disconnected");
     };
@@ -333,9 +350,18 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
  
     //Send Message on Rabbit Bus
     Mediator.prototype.sendMessage = function(message) {
+    	var chatidOfMessage = undefined;
     	if (message.eventName != undefined) {
     		if ((message.eventName.indexOf('feature.') >= 0) || (message.eventName.indexOf('chat') >= 0)) {
                 logger.logAlways(" Mediator sendMessage " + JSON.stringify(message) + " with  socketConnected " + socketConnected);
+            	if (message.payload != undefined) {
+            		var payload = JSON.parse(message.payload);
+                    if (payload.chatid != undefined) {
+                    	chatidOfMessage = payload.chatid;
+                    } else {
+                        this.cacheMessage(message);
+                    }
+            	}
     		}
     	}
         if (socketConnected) {
@@ -347,15 +373,14 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
             return true;
         }else{
         	if (message.payload != undefined) {
-        		var payload = JSON.parse(message.payload);
-                logger.log(" Mediator message payload " + JSON.stringify(payload) );
-                if (payload.chatid == undefined) {
+                logger.log(" Mediator message payload " + message.payload );
+                if (chatidOfMessage == undefined) {
                 	logger.log(" Mediator non-chat message " + JSON.stringify(message) + " added to cache");
                     messageQueue.push(message);
                 } else {
                 	logger.log(" Mediator chat message " + JSON.stringify(message) + " search on cache");
                     var index = messageQueue.findIndex( 
-                    					function(mqElement) { return JSON.parse(mqElement.payload).chatid == payload.chatid});
+                    					function(mqElement) { return JSON.parse(mqElement.payload).chatid == chatidOfMessage});
                     if (index != -1) {
                     	logger.log(" Mediator chat message " + JSON.stringify(message) + " in cache, removing");
                         var removedItem = messageQueue.splice(index, 1);
@@ -380,7 +405,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
             message: JSON.stringify(message),
             topic: topic
         };
-        this.cacheMessage(msg);
+//        this.cacheMessage(msg);
         this.sendMessage(msg);
         
     };
@@ -389,7 +414,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
     Mediator.prototype.subscribe = function(topic) {
         if(jQuery.inArray(topic, topics) == -1) { topics.push(topic); }
         msg = { type: "subscribe", topic: topic };
-        this.cacheMessage(msg);
+//        this.cacheMessage(msg);
         this.sendMessage(msg);
     };
  
@@ -398,7 +423,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         var index = jQuery.inArray(topic, topics);
         if(index != -1){ topics.splice(index,1); }
         msg = { type: "unsubscribe", topic: topic };
-        this.cacheMessage(msg);
+//        this.cacheMessage(msg);
         this.sendMessage(msg);
     };
  
@@ -418,7 +443,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
             responseType: responseType,
             cookieKeys: CookieManager.getCookies(url)
         };
-        this.cacheMessage(msg);
+//        this.cacheMessage(msg);
         this.sendMessage(msg);                 
     };
  
@@ -440,7 +465,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
             responseType: responseType,
             cookieKeys: CookieManager.getCookies(url)
         };
-        this.cacheMessage(msg);
+//        this.cacheMessage(msg);
         this.sendMessage(msg);        
     };
  
@@ -462,7 +487,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
             responseType: responseType,
             cookieKeys: CookieManager.getCookies(url)
         };
-        this.cacheMessage(msg);
+//       this.cacheMessage(msg);
         this.sendMessage(msg);
     };
  
@@ -482,7 +507,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
             responseType: responseType,
             cookieKeys: CookieManager.getCookies(url)
         };
-        this.cacheMessage(msg);
+//        this.cacheMessage(msg);
         this.sendMessage(msg);        
     };
  
