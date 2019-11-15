@@ -66,26 +66,26 @@
     color: #FFFFFF;
     font-weight: bold;
     font-size: 75%;
-    right: 0% !important;
+    left: 50% !important;
     margin-top: -155px !important;
-    margin-left: -250px !important;
+    margin-left: -100px !important;
     padding: 4px;
     position: fixed;
     text-align: center;
-    bottom: 0% !important;
+    top: 50% !important;
     width:31%;
 }
 
 #cDisconnectContent {
     background-color: #FF5733;
     font-size: 75%;
-    right: 0% !important;
+    left: 25% !important;
     margin-top: -125px !important;
-    margin-left: -250px !important;
+    margin-left: -100px !important;
     padding: 25px;
     position: fixed;
     text-align: center;
-    bottom: 0% !important;
+    top: 20% !important;
     width:31%;
     z-index: -1;
 }

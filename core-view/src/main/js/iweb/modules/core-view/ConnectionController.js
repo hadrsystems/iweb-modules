@@ -51,10 +51,10 @@ define(['ext', 'iweb/CoreModule'],
 		updateImageTag: function(style){
             var content = this.getView().getContentTarget().child("div");
             var header = content.child("#cDisconnectHeader");
-            var message = content.child("#cDisconnectContent");
+            //var message = content.child("#cDisconnectContent");
             content.dom.setAttribute("style", style);
             header.dom.setAttribute("style", style);
-            message.dom.setAttribute("style", style);
+            //message.dom.setAttribute("style", style);
 		}
 	});
 });
