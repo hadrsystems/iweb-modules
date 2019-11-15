@@ -302,12 +302,15 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if (array != null) {
             for (var i=0; i < array.length; i++) {
                 if(array[i].type == 'post' || array[i].type == 'put'){
-                   var parsedKey = JSON.parse(array[i].payload).seqtime ?  JSON.parse(array[i].payload).seqtime : JSON.parse(array[i].payload).seqnum;
-                   logger.log('parsedKey::' + parsedKey);
-                   map[ parsedKey] = array[i];                
-                }else{
-                  //msg's with no payload 
-                }             
+                   //var parsedKey = JSON.parse(array[i].payload).seqtime ?  JSON.parse(array[i].payload).seqtime : JSON.parse(array[i].payload).seqnum;
+                   if(JSON.parse(array[i].payload).seqtime != null){//only markers are allowed
+                    parsedKey = JSON.parse(array[i].payload).seqtime;
+                    console.log('parsedKey::' + parsedKey);
+                    map[ parsedKey] = array[i];  
+                }                              
+             }else{
+               //msg's with no payload 
+             }                    
                     
            }
         }
