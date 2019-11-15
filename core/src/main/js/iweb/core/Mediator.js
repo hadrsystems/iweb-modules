@@ -299,36 +299,21 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
 
     Mediator.prototype.convertArrayToMap = function (array) {
         var map = {};
-        for (var i=0; i < array.length; i++) {
-             if(array[i].type == 'post' || array[i].type == 'put'){
-                var parsedKey = JSON.parse(array[i].payload).seqtime ?  JSON.parse(array[i].payload).seqtime : JSON.parse(array[i].payload).seqnum;
-                logger.log('parsedKey::' + parsedKey);
-                map[ parsedKey] = array[i];                
-             }else{
-               //msg's with no payload 
-             }             
-                 
+        if (array != null) {
+            for (var i=0; i < array.length; i++) {
+                if(array[i].type == 'post' || array[i].type == 'put'){
+                   var parsedKey = JSON.parse(array[i].payload).seqtime ?  JSON.parse(array[i].payload).seqtime : JSON.parse(array[i].payload).seqnum;
+                   logger.log('parsedKey::' + parsedKey);
+                   map[ parsedKey] = array[i];                
+                }else{
+                  //msg's with no payload 
+                }             
+                    
+           }
         }
         return map;
     }
  
-    Mediator.prototype.convertArrayToMap1 = function (array) {
-        var map = {};        
-        for (var i=0; i < array.length; i++) {
-             if(array[i].type == 'post' || array[i].type == 'put'){
-                //var parsedKey = JSON.parse(array[i].payload).seqtime ?  JSON.parse(array[i].payload).seqtime : JSON.parse(array[i].payload).seqnum;
-                if(JSON.parse(array[i].payload).seqtime != null){
-                    parsedKey = JSON.parse(array[i].payload).seqtime;
-                    console.log('parsedKey::' + parsedKey);
-                    map[ parsedKey] = array[i];  
-                }                              
-             }else{
-               //msg's with no payload 
-             }             
-                 
-        }
-        return map;
-    }
     Mediator.prototype.onDisconnect = function(){
         EventManager.fireEvent("iweb.connection.disconnected");
     };
