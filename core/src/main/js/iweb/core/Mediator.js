@@ -286,7 +286,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         var mapLstg = this.convertArrayToMap(lstg);
         logger.log('converted local storage map::mapLstg:: length:'+ Object.keys(mapLstg).length +':::' + JSON.stringify(mapLstg));
         var mapMq = this.convertArrayToMap(mq); 
-        logger.log('converted messageQueuq map::mapMq:: length:' + Object.keys(mapLstg).length+':::' + JSON.stringify(mapMq));
+        logger.log('converted messageQueue map::mapMq:: length:' + Object.keys(mapLstg).length+':::' + JSON.stringify(mapMq));
 
         for (var id in mapLstg) {
             if (!mapMq.hasOwnProperty(id)) {
@@ -344,10 +344,10 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
                 logger.logAlways(" Mediator sendMessage " + JSON.stringify(message) + " with  socketConnected " + socketConnected);
             	if (message.payload != undefined) {
             		var payload = JSON.parse(message.payload);
-                    if (payload.chatid != undefined) {
-                    	chatidOfMessage = payload.chatid;
-                    } else {
+                    if (payload.chatid == undefined) {
                         this.cacheMessage(message);
+                    } else {
+                    	chatidOfMessage = payload.chatid;
                     }
             	}
     		}
