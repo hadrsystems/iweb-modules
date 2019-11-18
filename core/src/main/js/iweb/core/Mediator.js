@@ -31,7 +31,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         function(Ext, jQuery, atmosphere, EventManager, CookieManager) {
     "use strict";
  
-    var _DEBUG = true;
+    var _DEBUG = false;
     
     var _mediator = null;
 
