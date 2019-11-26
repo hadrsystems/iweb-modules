@@ -241,7 +241,6 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if(socketConnected){
             //check messageQueue has all the message from localStorage
         	logger.log(' Mediator Before find Delta:: messageQueue:: length is::'+ messageQueue.length + JSON.stringify(messageQueue));
-            ls.setItem('mqData',JSON.stringify(messageQueue)); // debugging purpose removed after testing
             var deltaCache = this.findDelta(JSON.parse(ls.getItem('lsData')), messageQueue);
         	logger.log(' Mediator deltaCache::' + JSON.stringify(deltaCache));
             messageQueue.push.apply(messageQueue,deltaCache);           
@@ -307,7 +306,6 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         if (array != null) {
             for (var i=0; i < array.length; i++) {
                 if(array[i].type == 'post' || array[i].type == 'put'){
-                   //var parsedKey = JSON.parse(array[i].payload).seqtime ?  JSON.parse(array[i].payload).seqtime : JSON.parse(array[i].payload).seqnum;
                    if(JSON.parse(array[i].payload).seqtime != null){//only markers are allowed
                     parsedKey = JSON.parse(array[i].payload).seqtime;
                     console.log('parsedKey::' + parsedKey);
