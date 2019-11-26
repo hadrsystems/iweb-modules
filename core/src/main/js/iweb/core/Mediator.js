@@ -31,7 +31,7 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         function(Ext, jQuery, atmosphere, EventManager, CookieManager) {
     "use strict";
  
-    var _DEBUG = false;
+    var _DEBUG = true;
     
     var _mediator = null;
 
@@ -240,24 +240,29 @@ define(["ext", "jquery", "atmosphere", "./EventManager", "./CookieManager"],
         logger.log(" Mediator onReopen prototype called with  socketConnected " + socketConnected);
         if(socketConnected){
             //check messageQueue has all the message from localStorage
-        	logger.log('Before find Delta:: messageQueue:: length is::'+ messageQueue.length + JSON.stringify(messageQueue));
+        	logger.log(' Mediator Before find Delta:: messageQueue:: length is::'+ messageQueue.length + JSON.stringify(messageQueue));
             ls.setItem('mqData',JSON.stringify(messageQueue)); // debugging purpose removed after testing
             var deltaCache = this.findDelta(JSON.parse(ls.getItem('lsData')), messageQueue);
-        	logger.log('deltaCache::' + JSON.stringify(deltaCache));
+        	logger.log(' Mediator deltaCache::' + JSON.stringify(deltaCache));
             messageQueue.push.apply(messageQueue,deltaCache);           
             this.clearLocalStorage();//clear local storage after delta is added to the offline cache
-            logger.log('** Cleared local storage after adding delta **');
+            logger.log(' Mediator Cleared local storage after adding delta');
             
             var completed = true;
             
 			for(var i=0; i<messageQueue.length; i++){
 				logger.log(" Mediator processing message from cache "+JSON.stringify(messageQueue[i]));
-				//Connection was lost again
-				if(!this.sendMessage(messageQueue[i])){
-					logger.log(" Mediator sopped processing message from cache "+JSON.stringify(messageQueue[i]));
+	            if (socketConnected) {
+		            ws.push(JSON.stringify(messageQueue[i]));
+	            } else {
 					completed = false;
 					break;
-				}
+	            }
+//				if(!this.sendMessage(messageQueue[i])){
+//					logger.log(" Mediator sopped processing message from cache "+JSON.stringify(messageQueue[i]));
+//					completed = false;
+//					break;
+//				}
 			}
 			if(completed){
 				logger.log(" Mediator emptying cache ");
